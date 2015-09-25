@@ -1,4 +1,6 @@
 {
-"port":"8080"
+"port":"8080",
+"ClientSecret":"b86bfee897fc2bff1da9125c7f8a7bcd00c5d560",
+"GithubAuthCallback":"http://localhost/auth/github/callback"
 }
 
