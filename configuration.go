@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-25 14:21]
+*     Last Modified       :     [2015-09-25 16:22]
 *     Description         :      
 **********************************************************************************/
 
@@ -15,6 +15,7 @@ import (
 )
 
 type Configuration struct {
+  LocalDev bool
   Port string
   ClientSecret string
   GithubAuthCallback string

@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 15:53]
+*     Last Modified       :     [2015-09-25 16:25]
 *     Description         :
 **********************************************************************************/
 package main
@@ -18,7 +18,9 @@ import (
   "os"
   "os/signal"
   "time"
+  "fmt"
 )
+
 
 const (
   ConfigurationPath string = "conf/app.json"
@@ -28,9 +30,16 @@ func main() {
   configuration := NewConfiguration(ConfigurationPath)
   /* Auth */
   gomniauth.SetSecurityKey(signature.RandomKey(64))
+  
+  var authCallback = configuration.GithubAuthCallback
+
+  if configuration.LocalDev {
+    authCallback = fmt.Sprintf("http://localhost:%s/auth/callback",configuration.Port)  
+  }
+  
   gomniauth.WithProviders(github.New("5f587d942465196d23af",
   configuration.ClientSecret,
-  configuration.GithubAuthCallback))
+  authCallback))
   /* Auth */
 
   /*Port and TCP connection */
