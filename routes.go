@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-25 15:51]
+*     Last Modified       :     [2015-09-25 15:56]
 *     Description         :
 **********************************************************************************/
 package main
@@ -21,9 +21,9 @@ func generateApiRoutes() {
     "Please use POST method only",nil)
   })
   /* Perform the auth */
-  goweb.Map("/auth", func(c context.Context) error {
+  goweb.Map("/auth/{provider}", func(c context.Context) error {
     log.Println("Starting authentication")
-    provider, err := gomniauth.Provider("github")
+    provider, err := gomniauth.Provider(c.PathValue("provider"))
     log.Println("Created new provider")
     if err != nil {
       return err
@@ -38,10 +38,10 @@ func generateApiRoutes() {
     log.Println("Responding with redirect")
     return goweb.Respond.WithRedirect(c,authUrl)
   })
-  /* Callback from github */
-  goweb.Map("/auth/callback", func(c context.Context) error {
+  /* Callback from auth */
+  goweb.Map("/auth/{provider}/callback", func(c context.Context) error {
     log.Println("Authentication response")
-    provider, err := gomniauth.Provider("github")
+    provider, err := gomniauth.Provider(c.PathValue("provider"))
     if err != nil {
       log.Fatalf("Error with provider")
       return err
