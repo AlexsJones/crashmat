@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 11:49]
+*     Last Modified       :     [2015-09-25 12:00]
 *     Description         :
 **********************************************************************************/
 package main
@@ -24,12 +24,17 @@ const (
 func main() {
 
   configuration := NewConfiguration(ConfigurationPath)
+  port := configuration.Port
+  if os.Getenv("PORT") != "" {
+    port = os.Getenv("PORT")  
+    log.Print("Using environmental variable for $PORT of %s", port)
+  }
 
   mapRoutes()
 
   log.Print("Initialising...")
   s := &http.Server{
-    Addr:           configuration.Port,
+    Addr:           port,
     Handler:        goweb.DefaultHttpHandler(),
     ReadTimeout:    10 * time.Second,
     WriteTimeout:   10 * time.Second,
@@ -38,9 +43,9 @@ func main() {
 
   c := make(chan os.Signal, 1)
   signal.Notify(c, os.Interrupt)
-  listener, listenErr := net.Listen("tcp", ":" + configuration.Port)
+  listener, listenErr := net.Listen("tcp", ":" + port)
 
-  log.Printf("  visit: %s", ":" + configuration.Port)
+  log.Printf("  visit: %s", ":" + port)
   if listenErr != nil {
     log.Fatalf("Could not listen: %s", listenErr)
   }
