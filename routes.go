@@ -8,8 +8,8 @@
 package main
 
 import (
-	"github.com/stretchr/goweb"
-	"github.com/stretchr/goweb/context"
+	"github.com/AlexsJones/crashmat/Godeps/_workspace/src/github.com/stretchr/goweb"
+	"github.com/AlexsJones/crashmat/Godeps/_workspace/src/github.com/stretchr/goweb/context"
 	"log"
 )
 
