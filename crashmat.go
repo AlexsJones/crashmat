@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 12:00]
+*     Last Modified       :     [2015-09-25 12:01]
 *     Description         :
 **********************************************************************************/
 package main
@@ -27,7 +27,7 @@ func main() {
   port := configuration.Port
   if os.Getenv("PORT") != "" {
     port = os.Getenv("PORT")  
-    log.Print("Using environmental variable for $PORT of %s", port)
+    log.Print("Using environmental variable for $PORT")
   }
 
   mapRoutes()
