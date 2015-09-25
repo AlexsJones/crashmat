@@ -2,14 +2,14 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-25 10:41]
+*     Last Modified       :     [2015-09-25 11:13]
 *     Description         :
 **********************************************************************************/
 package main
 
 import (
-	"github.com/AlexsJones/crashmat/Godeps/_workspace/src/github.com/stretchr/goweb"
-	"github.com/AlexsJones/crashmat/Godeps/_workspace/src/github.com/stretchr/goweb/context"
+	"github.com/stretchr/goweb"
+	"github.com/stretchr/goweb/context"
 	"log"
 )
 
