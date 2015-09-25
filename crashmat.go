@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 11:23]
+*     Last Modified       :     [2015-09-25 11:49]
 *     Description         :
 **********************************************************************************/
 package main
@@ -18,16 +18,18 @@ import (
 )
 
 const (
-  Address string = ":9090"
+  ConfigurationPath string = "conf/app.json"
 )
 
 func main() {
+
+  configuration := NewConfiguration(ConfigurationPath)
 
   mapRoutes()
 
   log.Print("Initialising...")
   s := &http.Server{
-    Addr:           Address,
+    Addr:           configuration.Port,
     Handler:        goweb.DefaultHttpHandler(),
     ReadTimeout:    10 * time.Second,
     WriteTimeout:   10 * time.Second,
@@ -36,9 +38,9 @@ func main() {
 
   c := make(chan os.Signal, 1)
   signal.Notify(c, os.Interrupt)
-  listener, listenErr := net.Listen("tcp", Address)
+  listener, listenErr := net.Listen("tcp", ":" + configuration.Port)
 
-  log.Printf("  visit: %s", Address)
+  log.Printf("  visit: %s", ":" + configuration.Port)
   if listenErr != nil {
     log.Fatalf("Could not listen: %s", listenErr)
   }
