@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-25 15:11]
+*     Last Modified       :     [2015-09-25 15:51]
 *     Description         :
 **********************************************************************************/
 package main
@@ -43,16 +43,19 @@ func generateApiRoutes() {
     log.Println("Authentication response")
     provider, err := gomniauth.Provider("github")
     if err != nil {
+      log.Fatalf("Error with provider")
       return err
     }
     creds, err := provider.CompleteAuth(c.QueryParams())
     log.Println("Completing authentication")
     if err != nil {
+      log.Fatalf("Error completing authentication")
       return err
     }
-    user, userErr := provider.GetUser(creds)
     log.Println("Getting user credentials")
+    user, userErr := provider.GetUser(creds)
     if userErr != nil {
+      log.Fatalf("Get user error")
       return userErr
     }
     return goweb.API.RespondWithData(c,user)
