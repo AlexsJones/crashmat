@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 17:27]
+*     Last Modified       :     [2015-09-25 17:29]
 *     Description         :
 **********************************************************************************/
 package main
@@ -28,14 +28,12 @@ const (
 func main() {
   configuration := NewConfiguration(ConfigurationPath)
   /* Auth */
+  log.Print(configuration.GithubAuthCallback)
   gomniauth.SetSecurityKey(signature.RandomKey(64))
-  
-  
-  gomniauth.WithProviders(github.New("5f587d942465196d23af",
+  gomniauth.WithProviders(github.New(configuration.ClientId,
   configuration.ClientSecret,
   configuration.GithubAuthCallback))
   /* Auth */
-
   /*Port and TCP connection */
   port := configuration.Port
   if os.Getenv("PORT") != "" {
