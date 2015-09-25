@@ -1,0 +1,51 @@
+{
+	"ImportPath": "github.com/AlexsJones/crashmat",
+	"GoVersion": "go1.3.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/clbanning/x2j",
+			"Rev": "0e45c2228aab9921ef50cc7d0bf7186082cc51a4"
+		},
+		{
+			"ImportPath": "github.com/stretchr/codecs",
+			"Rev": "8e29b38960a541ed1264b001dcb21701283c590d"
+		},
+		{
+			"ImportPath": "github.com/stretchr/goweb",
+			"Comment": "v2-73-gd7518e7",
+			"Rev": "d7518e7a1cf8f0b11605aa2a90319936689a8b5e"
+		},
+		{
+			"ImportPath": "github.com/stretchr/objx",
+			"Rev": "cbeaeb16a013161a98496fad62933b1d21786672"
+		},
+		{
+			"ImportPath": "github.com/stretchr/stew/strings",
+			"Rev": "80ef0842b48b329a6120607c817a85aff5a2ec71"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-45-gbcd32dc",
+			"Rev": "bcd32dcc8b1e09b14f55703dcf891fdd82561143"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/http",
+			"Comment": "v1.0-45-gbcd32dc",
+			"Rev": "bcd32dcc8b1e09b14f55703dcf891fdd82561143"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/mock",
+			"Comment": "v1.0-45-gbcd32dc",
+			"Rev": "bcd32dcc8b1e09b14f55703dcf891fdd82561143"
+		},
+		{
+			"ImportPath": "github.com/ugorji/go/codec",
+			"Rev": "1d5269ed4e89d423d40362a0914e1c99adb13cc8"
+		},
+		{
+			"ImportPath": "labix.org/v2/mgo/bson",
+			"Comment": "287",
+			"Rev": "gustavo@niemeyer.net-20140501184651-975yyw9ipld92pji"
+		}
+	]
+}
