@@ -2,12 +2,15 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 12:01]
+*     Last Modified       :     [2015-09-25 14:22]
 *     Description         :
 **********************************************************************************/
 package main
 
 import (
+  "github.com/stretchr/gomniauth"
+  "github.com/stretchr/gomniauth/providers/github"
+  "github.com/stretchr/signature"
   "github.com/stretchr/goweb"
   "log"
   "net"
@@ -22,8 +25,15 @@ const (
 )
 
 func main() {
-
   configuration := NewConfiguration(ConfigurationPath)
+  /* Auth */
+  gomniauth.SetSecurityKey(signature.RandomKey(64))
+  gomniauth.WithProviders(github.New("5f587d942465196d23af",
+  configuration.ClientSecret,
+  configuration.GithubAuthCallback))
+  /* Auth */
+
+  /*Port and TCP connection */
   port := configuration.Port
   if os.Getenv("PORT") != "" {
     port = os.Getenv("PORT")  
@@ -44,7 +54,8 @@ func main() {
   c := make(chan os.Signal, 1)
   signal.Notify(c, os.Interrupt)
   listener, listenErr := net.Listen("tcp", ":" + port)
-
+  /*Port and TCP connection */
+  
   log.Printf("  visit: %s", ":" + port)
   if listenErr != nil {
     log.Fatalf("Could not listen: %s", listenErr)

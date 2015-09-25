@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-25 11:47]
+*     Last Modified       :     [2015-09-25 14:21]
 *     Description         :      
 **********************************************************************************/
 
@@ -16,6 +16,8 @@ import (
 
 type Configuration struct {
   Port string
+  ClientSecret string
+  GithubAuthCallback string
 }
 
 func NewConfiguration(configurationPath string) *Configuration {
