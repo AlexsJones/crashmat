@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-25 17:17]
+*     Last Modified       :     [2015-09-25 17:21]
 *     Description         :
 **********************************************************************************/
 package main
@@ -11,7 +11,6 @@ import (
   "github.com/stretchr/gomniauth"
   "github.com/stretchr/goweb"
   "github.com/stretchr/goweb/context"
-  "fmt"
   "log"
   "net/http"
 )
@@ -54,18 +53,15 @@ func generateApiRoutes() {
       return err
     }
     log.Println("Getting user credentials")
-    user, userErr := provider.GetUser(creds)
+    _, userErr := provider.GetUser(creds)
     if userErr != nil {
       log.Fatalf("Get user error")
       return userErr
     }
 
-    
     log.Println("Authenticated successfully!")
 
-    formattedResponse := fmt.Sprintf("<html><body><h1>Successfully authenticated you %s</h1></body></html>", user.Nickname())
-
-    return goweb.Respond.With(c,200,[]byte(formattedResponse))
+    return goweb.Respond.WithOK(c)
   })
 }
 func mapRoutes() {
