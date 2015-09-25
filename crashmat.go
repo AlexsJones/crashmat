@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 14:22]
+*     Last Modified       :     [2015-09-25 15:53]
 *     Description         :
 **********************************************************************************/
 package main
@@ -55,7 +55,7 @@ func main() {
   signal.Notify(c, os.Interrupt)
   listener, listenErr := net.Listen("tcp", ":" + port)
   /*Port and TCP connection */
-  
+
   log.Printf("  visit: %s", ":" + port)
   if listenErr != nil {
     log.Fatalf("Could not listen: %s", listenErr)
