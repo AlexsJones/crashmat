@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-25 17:01]
+*     Last Modified       :     [2015-09-25 17:07]
 *     Description         :
 **********************************************************************************/
 package main
@@ -58,7 +58,10 @@ func generateApiRoutes() {
       log.Fatalf("Get user error")
       return userErr
     }
+
+    
     log.Println("Authenticated successfully!")
+    log.Println(user)
     return goweb.API.Respond(c,200,"Successfully authenticated",nil)
   })
 }
