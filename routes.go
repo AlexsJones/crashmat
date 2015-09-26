@@ -56,12 +56,20 @@ func generateApiRoutes() {
     _, userErr := provider.GetUser(creds)
     if userErr != nil {
       log.Fatalf("Get user error")
-      return userErr
+    return goweb.Respond.WithRedirect(c,"/auth/failed")
     }
 
     log.Println("Authenticated successfully!")
+    return goweb.Respond.WithRedirect(c,"/auth/successful")
+  })
+  /* Complete auth notification */
+  goweb.Map("/auth/successful", func(c context.Context) error {
+    return goweb.Respond.With(c,200,[]byte("Authentication completed successfully"))
 
-    return goweb.Respond.WithOK(c)
+  })
+  /* Failed auth notification */
+  goweb.Map("/auth/failed", func(c context.Context) error {
+    return goweb.Respond.With(c,400,[]byte("Authentication failed"))
   })
 }
 func mapRoutes() {
