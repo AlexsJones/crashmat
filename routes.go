@@ -44,19 +44,19 @@ func generateApiRoutes() {
     provider, err := gomniauth.Provider(c.PathValue("provider"))
     if err != nil {
       log.Fatalf("Error with provider")
-      return err
+      return goweb.Respond.WithRedirect(c,"/auth/failed")
     }
     creds, err := provider.CompleteAuth(c.QueryParams())
     log.Println("Completing authentication")
     if err != nil {
       log.Fatalf("Error completing authentication")
-      return err
+      return goweb.Respond.WithRedirect(c,"/auth/failed")
     }
     log.Println("Getting user credentials")
     _, userErr := provider.GetUser(creds)
     if userErr != nil {
       log.Fatalf("Get user error")
-    return goweb.Respond.WithRedirect(c,"/auth/failed")
+      return goweb.Respond.WithRedirect(c,"/auth/failed")
     }
 
     log.Println("Authenticated successfully!")
