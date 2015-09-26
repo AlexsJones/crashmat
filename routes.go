@@ -44,31 +44,31 @@ func generateApiRoutes() {
     provider, err := gomniauth.Provider(c.PathValue("provider"))
     if err != nil {
       log.Fatalf("Error with provider")
-      return goweb.Respond.WithRedirect(c,"/auth/failed")
+      return goweb.Respond.WithRedirect(c,"/auth/status/failed")
     }
     creds, err := provider.CompleteAuth(c.QueryParams())
     log.Println("Completing authentication")
     if err != nil {
       log.Fatalf("Error completing authentication")
-      return goweb.Respond.WithRedirect(c,"/auth/failed")
+      return goweb.Respond.WithRedirect(c,"/auth/status/failed")
     }
     log.Println("Getting user credentials")
     _, userErr := provider.GetUser(creds)
     if userErr != nil {
       log.Fatalf("Get user error")
-      return goweb.Respond.WithRedirect(c,"/auth/failed")
+      return goweb.Respond.WithRedirect(c,"/auth/status/failed")
     }
 
     log.Println("Authenticated successfully!")
-    return goweb.Respond.WithRedirect(c,"/auth/successful")
+    return goweb.Respond.WithRedirect(c,"/auth/status/successful")
   })
   /* Complete auth notification */
-  goweb.Map("/auth/successful", func(c context.Context) error {
+  goweb.Map("/auth/status/successful", func(c context.Context) error {
     return goweb.Respond.With(c,200,[]byte("Authentication completed successfully"))
 
   })
   /* Failed auth notification */
-  goweb.Map("/auth/failed", func(c context.Context) error {
+  goweb.Map("/auth/status/failed", func(c context.Context) error {
     return goweb.Respond.With(c,400,[]byte("Authentication failed"))
   })
 }
