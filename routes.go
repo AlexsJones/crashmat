@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-25 17:30]
+*     Last Modified       :     [2015-09-26 17:44]
 *     Description         :
 **********************************************************************************/
 package main
@@ -53,13 +53,14 @@ func generateApiRoutes() {
       return goweb.Respond.WithRedirect(c,"/auth/status/failed")
     }
     log.Println("Getting user credentials")
-    _, userErr := provider.GetUser(creds)
+    user, userErr := provider.GetUser(creds)
     if userErr != nil {
       log.Fatalf("Get user error")
       return goweb.Respond.WithRedirect(c,"/auth/status/failed")
     }
 
     log.Println("Authenticated successfully!")
+    log.Println("Username: %s User email: %s", user.Name(), user.Email())
     return goweb.Respond.WithRedirect(c,"/auth/status/successful")
   })
   /* Complete auth notification */
