@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-25 17:29]
+*     Last Modified       :     [2015-09-27 22:04]
 *     Description         :      
 **********************************************************************************/
 
