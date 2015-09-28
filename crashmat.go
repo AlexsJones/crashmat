@@ -2,12 +2,13 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-25 17:29]
+*     Last Modified       :     [2015-09-27 22:27]
 *     Description         :
 **********************************************************************************/
 package main
 
 import (
+  "gopkg.in/redis.v3"
   "github.com/stretchr/gomniauth"
   "github.com/stretchr/gomniauth/providers/github"
   "github.com/stretchr/signature"
@@ -26,6 +27,15 @@ const (
 )
 
 func main() {
+  
+  client := redis.NewClient(&redis.Options {
+    Addr: os.Getenv("REDIS_URL"),
+    Password: os.Getenv("REDIS_PASSWORD"),
+    DB: 0,
+  })
+
+  pong, err := client.Ping().Result()
+
   configuration := NewConfiguration(ConfigurationPath)
   /* Auth */
   log.Print(configuration.GithubAuthCallback)
