@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-27 22:27]
+*     Last Modified       :     [2015-09-28 07:17]
 *     Description         :
 **********************************************************************************/
 package main
@@ -17,6 +17,7 @@ import (
   "net"
   "net/http"
   "os"
+  "fmt" 
   "os/signal"
   "time"
 )
@@ -35,6 +36,10 @@ func main() {
   })
 
   pong, err := client.Ping().Result()
+  if err != nil {
+    log.Print("Error with Redis ping pong test!")
+  } 
+  fmt.Print(pong)
 
   configuration := NewConfiguration(ConfigurationPath)
   /* Auth */
