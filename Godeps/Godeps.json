@@ -6,13 +6,21 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/araddon/gou",
+			"Rev": "0c2ab7394d785afff14c983fedce4be70ccc431f"
+		},
+		{
+			"ImportPath": "github.com/bitly/go-hostpool",
+			"Rev": "d0e59c22a56e8dadfed24f74f452cea5a52722d2"
+		},
+		{
 			"ImportPath": "github.com/clbanning/x2j",
 			"Rev": "0e45c2228aab9921ef50cc7d0bf7186082cc51a4"
 		},
 		{
-			"ImportPath": "github.com/olivere/elastic",
-			"Comment": "v2.0.8-12-g5644767",
-			"Rev": "5644767c5753982fc611b6e6398a87d05d983728"
+			"ImportPath": "github.com/mattbaird/elastigo/lib",
+			"Comment": "v1.0-248-g53bd637",
+			"Rev": "53bd637ad02af3043244da16c1b9f13633e8e912"
 		},
 		{
 			"ImportPath": "github.com/stretchr/codecs",
