@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-09-29 16:28]
+*     Last Modified       :     [2015-09-29 18:07]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -14,12 +14,9 @@ import (
   "encoding/json"
   "net/http"
   elastigo "github.com/mattbaird/elastigo/lib"
-
 )
 
-type uploadController struct {
-  upload[] *Upload
-}
+type uploadController struct {}
 
 func (i *uploadController) Before(c context.Context) error {
 
@@ -37,9 +34,13 @@ func (i *uploadController) Create(c context.Context) error {
 
   dataMap := data.(map[string]interface{})
 
-  uploaded := NewUpload(dataMap["applicationid"].(string), dataMap["raw"].(string))
+  if dataMap["applicationid"].(string) != "" {
+    if dataMap["raw"].(string) != "" {
 
-  elasticConnection.Index("crashmat","upload",NewGuid(),nil,uploaded) 
+      uploaded := NewUpload(dataMap["applicationid"].(string), dataMap["raw"].(string))
+      elasticConnection.Index("crashmat","upload",NewGuid(),nil,uploaded) 
+    }
+  }
 
   return goweb.API.RespondWithData(c,nil)
 }
@@ -55,7 +56,6 @@ func (i *uploadController) ReadMany(c context.Context) error {
   if err != nil {
     log.Fatal(err)
   }
-
   count := 0
   for count < out.Hits.Total {
 
@@ -67,7 +67,7 @@ func (i *uploadController) ReadMany(c context.Context) error {
     var t Upload
     json.Unmarshal(bytes, &t)
     results = append(results, t) 
-    count += 1  
+    count += 1
   }
   return goweb.API.RespondWithData(c,results)
 }
