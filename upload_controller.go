@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-09-29 08:36]
+*     Last Modified       :     [2015-09-29 11:24]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -46,25 +46,29 @@ func (i *uploadController) Create(c context.Context) error {
   incomingData.applicationid = dataMap["applicationid"].(string)
   incomingData.raw = dataMap["raw"].(string)
   i.upload = append(i.upload, incomingData)
-  return goweb.Respond.WithStatus(c, http.StatusCreated)
+  return goweb.API.RespondWithData(c,nil)
 }
 
 func (i *uploadController) ReadMany(c context.Context) error {
 
-  if i.upload == nil {
-    i.upload = make([] *upload, 0)
+  var results = make(map[string]string)
+
+  for _, incomingData := range i.upload {
+      results[incomingData.applicationid] = incomingData.raw
   }
-  return goweb.API.RespondWithData(c,i.upload)
+
+  return goweb.API.RespondWithData(c,results)
 }
 
 func (i *uploadController) Read(applicationid string, c context.Context) error {
 
-  var results[] *upload
+  var results = make(map[string]string)
 
   for _, incomingData := range i.upload {
     if incomingData.applicationid == applicationid {
-      results = append(results, incomingData)
+      results[incomingData.applicationid] = incomingData.raw
     }
   }
-  return goweb.API.RespondWithData(c, results)
+
+  return goweb.API.RespondWithData(c,results)
 }
