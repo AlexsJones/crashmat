@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-09-28 17:35]
+*     Last Modified       :     [2015-09-29 08:08]
 *     Description         :
 **********************************************************************************/
 package main
@@ -16,12 +16,12 @@ func main() {
   var configuration = Configuration{}
 
   configuration.Load("conf/app.json")
-  
+
   configuration.LoadElasticSearch()
-  
+
   configuration.LoadAuth()
 
-  mapRoutes()
+  mapRoutes(configuration)
 
   log.Print("Initialising...")
 

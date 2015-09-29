@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-26 17:44]
+*     Last Modified       :     [2015-09-29 08:20]
 *     Description         :
 **********************************************************************************/
 package main
@@ -12,14 +12,9 @@ import (
   "github.com/stretchr/goweb"
   "github.com/stretchr/goweb/context"
   "log"
-  "net/http"
 )
 
-func generateApiRoutes() {
-  goweb.Map("GET","/api",func(c context.Context) error {
-    return goweb.API.Respond(c,http.StatusMethodNotAllowed,
-    "Please use POST method only",nil)
-  })
+func generateAuthRoutes(c Configuration) {
   /* Perform the auth */
   goweb.Map("/auth/{provider}", func(c context.Context) error {
     log.Println("Starting authentication")
@@ -66,18 +61,29 @@ func generateApiRoutes() {
   /* Complete auth notification */
   goweb.Map("/auth/status/successful", func(c context.Context) error {
     return goweb.Respond.With(c,200,[]byte("Authentication completed successfully"))
-
   })
   /* Failed auth notification */
   goweb.Map("/auth/status/failed", func(c context.Context) error {
     return goweb.Respond.With(c,400,[]byte("Authentication failed"))
   })
 }
-func mapRoutes() {
+
+func generateControllers(c Configuration) {
+
+  uploadController := new (uploadController)
+
+  goweb.MapController(uploadController)
+
+}
+
+func mapRoutes(c Configuration) {
   goweb.MapBefore(func(c context.Context) error {
     log.Printf("%s %s %s", c.HttpRequest().RemoteAddr, 
     c.MethodString(), c.HttpRequest().URL.Path)
     return nil
   })
-  generateApiRoutes()
+
+  generateAuthRoutes(c)
+
+  generateControllers(c)
 }
