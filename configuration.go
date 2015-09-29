@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-29 08:08]
+*     Last Modified       :     [2015-09-29 11:32]
 *     Description         :      
 **********************************************************************************/
 
@@ -25,6 +25,7 @@ import (
 )
 
 type Elastic struct {
+  IsEnabled bool
   HostAddress string
 }
 type Json struct {

@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-09-29 11:24]
+*     Last Modified       :     [2015-09-29 11:30]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -56,7 +56,6 @@ func (i *uploadController) ReadMany(c context.Context) error {
   for _, incomingData := range i.upload {
       results[incomingData.applicationid] = incomingData.raw
   }
-
   return goweb.API.RespondWithData(c,results)
 }
 
@@ -69,6 +68,5 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
       results[incomingData.applicationid] = incomingData.raw
     }
   }
-
   return goweb.API.RespondWithData(c,results)
 }
