@@ -2,7 +2,7 @@
 *     File Name           :     upload_controller_test.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 09:12]
-*     Last Modified       :     [2015-09-29 09:17]
+*     Last Modified       :     [2015-09-29 09:38]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -31,4 +31,3 @@ func TestUploadControllerGet(t *testing.T) {
     assert.Equal(t, 200, response.StatusCode, "Status code should be correct")
   })
 }
-
