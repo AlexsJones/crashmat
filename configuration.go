@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-29 11:32]
+*     Last Modified       :     [2015-09-29 14:29]
 *     Description         :      
 **********************************************************************************/
 
@@ -20,8 +20,6 @@ import (
   "os"
   "encoding/json"
   "log"
-  "fmt"
-  "github.com/olivere/elastic"
 )
 
 type Elastic struct {
@@ -38,7 +36,6 @@ type Json struct {
 }
 type Configuration struct {
   Json Json
-  ElasticClient *elastic.Client
   HttpServer *http.Server
 }
 
@@ -53,29 +50,6 @@ func (c *Configuration)Load(configurationPath string) {
   if err = jsonParser.Decode(&c.Json); err != nil {
     log.Fatalf("parsing config file", err.Error())
   }
-}
-
-func (c *Configuration) LoadElasticSearch() {
-
-  log.Printf("Connecting to elastic search %s\n", c.Json.Elastic.HostAddress)
-
-  client, err := elastic.NewClient(elastic.SetURL(c.Json.Elastic.HostAddress))
-  if err != nil {
-    log.Fatal(`Could not connect to the Elasticsearch service - 
-    Please make sure configuration is correct`)
-    panic(err)
-  }
-
-  info, code, err := client.Ping().Do()
-  if err != nil {
-    log.Fatal(`Could not connect to the Elasticsearch service -
-    Please make sure configuration is correct`)
-    panic(err)
-  }
-
-  fmt.Printf("Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
-
-  c.ElasticClient = client
 }
 
 func (c *Configuration) LoadAuth() {
