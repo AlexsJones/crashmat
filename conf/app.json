@@ -5,6 +5,7 @@
 "ClientId":"5f587d942465196d23af",
 "GithubAuthCallback":"https://limitless-shore-5540.herokuapp.com/auth/github/callback",
 "Elastic": {
+  "IsEnabled" : false,
   "HostAddress":"http://localhost:9200"
 }
 }
