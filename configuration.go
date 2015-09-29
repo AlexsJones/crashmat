@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-29 14:29]
+*     Last Modified       :     [2015-09-29 16:27]
 *     Description         :      
 **********************************************************************************/
 
@@ -20,6 +20,7 @@ import (
   "os"
   "encoding/json"
   "log"
+   elastigo "github.com/mattbaird/elastigo/lib"
 )
 
 type Elastic struct {
@@ -52,6 +53,17 @@ func (c *Configuration)Load(configurationPath string) {
   }
 }
 
+/* TODO:Until I know how to write Go better I'll store a ref here to ES */
+/* Global */
+var elasticConnection *elastigo.Conn
+/* Global */
+
+func (c *Configuration) LoadElasticSearch() {
+
+  elasticConnection = elastigo.NewConn()
+  elasticConnection.SetFromUrl(c.Json.Elastic.HostAddress)
+
+}
 func (c *Configuration) LoadAuth() {
 
   gomniauth.SetSecurityKey(signature.RandomKey(64))

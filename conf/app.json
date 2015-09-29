@@ -6,6 +6,6 @@
 "GithubAuthCallback":"https://limitless-shore-5540.herokuapp.com/auth/github/callback",
 "Elastic": {
   "IsEnabled" : true,
-  "HostAddress":"http://ec2-52-19-48-2.eu-west-1.compute.amazonaws.com:9200"
+  "HostAddress":"http://localhost:9200"
 }
 }

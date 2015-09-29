@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-09-29 16:22]
+*     Last Modified       :     [2015-09-29 16:28]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -39,31 +39,19 @@ func (i *uploadController) Create(c context.Context) error {
 
   uploaded := NewUpload(dataMap["applicationid"].(string), dataMap["raw"].(string))
 
-  //TODO: REMOVE THIS AND STOP INITIALISING
-  conn := elastigo.NewConn()
-
-  conn.SetFromUrl("http://localhost:9200")
-
-  log.Print(uploaded.String())
-
-  conn.Index("crashmat","upload",NewGuid(),nil,uploaded) 
+  elasticConnection.Index("crashmat","upload",NewGuid(),nil,uploaded) 
 
   return goweb.API.RespondWithData(c,nil)
 }
 
 func (i *uploadController) ReadMany(c context.Context) error {
 
-  //TODO: REMOVE THIS AND STOP INITIALISING
-  conn := elastigo.NewConn()
-
   var results []Upload
-
-  conn.SetFromUrl("http://localhost:9200")
 
   qry := elastigo.Search("crashmat").Pretty().Query(
     elastigo.Query().All(),
   )
-  out, err := qry.Result(conn)
+  out, err := qry.Result(elasticConnection)
   if err != nil {
     log.Fatal(err)
   }
@@ -86,20 +74,15 @@ func (i *uploadController) ReadMany(c context.Context) error {
 
 func (i *uploadController) Read(applicationid string, c context.Context) error {
 
-  conn := elastigo.NewConn()
-
   var results []Upload
-
-  conn.SetFromUrl("http://localhost:9200")
 
   qry := elastigo.Search("crashmat").Pretty().Query(
     elastigo.Query().Search(applicationid),
   )
-  out, err := qry.Result(conn)
+  out, err := qry.Result(elasticConnection)
   if err != nil {
     log.Fatal(err)
   }
-
   count := 0
   for count < out.Hits.Total {
 
