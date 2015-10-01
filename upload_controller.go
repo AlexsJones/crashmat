@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-09-29 18:07]
+*     Last Modified       :     [2015-09-30 17:42]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -16,6 +16,9 @@ import (
   elastigo "github.com/mattbaird/elastigo/lib"
 )
 
+const (
+   iname string = "crashmat"
+)
 type uploadController struct {}
 
 func (i *uploadController) Before(c context.Context) error {
@@ -49,7 +52,7 @@ func (i *uploadController) ReadMany(c context.Context) error {
 
   var results []Upload
 
-  qry := elastigo.Search("crashmat").Pretty().Query(
+  qry := elastigo.Search(iname).Pretty().Query(
     elastigo.Query().All(),
   )
   out, err := qry.Result(elasticConnection)
@@ -76,7 +79,7 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
 
   var results []Upload
 
-  qry := elastigo.Search("crashmat").Pretty().Query(
+  qry := elastigo.Search(iname).Pretty().Query(
     elastigo.Query().Search(applicationid),
   )
   out, err := qry.Result(elasticConnection)
