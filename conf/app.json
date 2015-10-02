@@ -1,11 +1,13 @@
 {
-"LocalDev":true,
-"Port":"8080",
-"ClientSecret":"b86bfee897fc2bff1da9125c7f8a7bcd00c5d560",
-"ClientId":"5f587d942465196d23af",
-"GithubAuthCallback":"https://limitless-shore-5540.herokuapp.com/auth/github/callback",
-"Elastic": {
-  "IsEnabled" : true,
-  "HostAddress":"http://localhost:9200"
-}
+  "Port":"8080",
+  "ClientSecret":"b86bfee897fc2bff1da9125c7f8a7bcd00c5d560",
+  "ClientId":"5f587d942465196d23af",
+  "GithubAuthCallback":"https://limitless-shore-5540.herokuapp.com/auth/github/callback",
+  "Elastic": {
+    "IsEnabled" : true,
+    "HostAddress":"http://localhost:9200"
+  },
+  "Database": {
+    "LocalPath":"db/dev.db"
+  }
 }
