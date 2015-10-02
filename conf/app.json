@@ -8,6 +8,8 @@
     "HostAddress":"http://localhost:9200"
   },
   "Database": {
-    "LocalPath":"db/dev.db"
+    "LocalPath":"db/dev.db",
+    "TableName":"upload_entries",
+    "SelectOnRange":"select * from `upload_entries` LIMIT %d, %d"
   }
 }
