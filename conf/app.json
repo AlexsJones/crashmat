@@ -11,5 +11,8 @@
     "LocalPath":"db/dev.db",
     "TableName":"upload_entries",
     "SelectOnRange":"select * from `upload_entries` LIMIT %d, %d"
+  },
+  "FetchUpdate": {
+    "MillisecondFrequency": 3000
   }
 }
