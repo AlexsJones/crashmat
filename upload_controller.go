@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-02 11:38]
+*     Last Modified       :     [2015-10-02 15:00]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -41,7 +41,8 @@ func (i *uploadController) Create(c context.Context) error {
     if dataMap["raw"].(string) != "" {
 
       uploaded := NewUpload(dataMap["applicationid"].(string), dataMap["raw"].(string))
-      elasticConnection.Index("crashmat","upload",NewGuid(),nil,uploaded) 
+      err := databaseConnection.Insert(&uploaded)
+      checkErr(err,"Failed inserting")
     }
   }
 
@@ -51,7 +52,6 @@ func (i *uploadController) Create(c context.Context) error {
 func (i *uploadController) ReadMany(c context.Context) error {
 
   var results []Upload
-
   qry := elastigo.Search(iname).Pretty().Query(
     elastigo.Query().All(),
   )
@@ -60,7 +60,7 @@ func (i *uploadController) ReadMany(c context.Context) error {
     log.Fatal(err)
   }
   count := 0
- 
+
   log.Printf("Found %d hits", count)
 
   for count < out.Hits.Total {
@@ -90,9 +90,9 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
     log.Fatal(err)
   }
   count := 0
-  
+
   log.Printf("Found %d hits", count)
-  
+
   for count < out.Hits.Total {
 
     bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
