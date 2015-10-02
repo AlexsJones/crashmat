@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-10-02 15:01]
+*     Last Modified       :     [2015-10-02 15:12]
 *     Description         :      
 **********************************************************************************/
 
@@ -43,6 +43,8 @@ type Json struct {
 
 type Database struct {
   LocalPath string
+  TableName string
+  SelectOnRange string
 }
 
 type Configuration struct {
@@ -122,7 +124,7 @@ func (c *Configuration) LoadDatabase() {
   db, err := sql.Open("sqlite3", c.Json.Database.LocalPath)
   checkErr(err, "sql.Open failed")
   dbmap := &gorp.DbMap{ Db: db, Dialect: gorp.SqliteDialect{}}
-  dbmap.AddTableWithName(Upload{},"upload_entries").SetKeys(true, "Id")
+  dbmap.AddTableWithName(Upload{},c.Json.Database.TableName).SetKeys(true, "Id")
   err = dbmap.CreateTablesIfNotExists()
   checkErr(err, "Create tables failed")
   c.DbMap = dbmap
@@ -134,33 +136,26 @@ func (c *Configuration) StartPeriodicFetch() {
   log.Println("Starting periodic fetch")
 
   go func() {
-    
+
     var chunkSize int64 = 10
     for {
       var startIndex = FetchLastIndexFromES()
 
       log.Println("Starting index from ",startIndex)
-      /*    
-      var results []Upload
-      qry := elastigo.Search(iname).Pretty().Query(
-        elastigo.Query().All(),
-      )
-      out, err := qry.Result(elasticConnection)
-      checkErr(err,"Elastic Connection")    
-      */
+
       var uploads[] Upload
 
-      _, err := databaseConnection.Select(&uploads, fmt.Sprintf("select * from `upload_entries` LIMIT %d, %d",startIndex,startIndex + chunkSize))
+      _, err := databaseConnection.Select(&uploads, fmt.Sprintf(c.Json.Database.SelectOnRange,startIndex,startIndex + chunkSize))
       checkErr(err,"Select failed")      
-      
+
       if len(uploads) == 0 {
         log.Printf("Nothing to parse from database")       
       }else{
-      for x, p := range uploads {
-        log.Printf("%d: %v\n",x,p)
-        elasticConnection.Index("crashmat","upload",NewGuid(),nil,p)
+        for x, p := range uploads {
+          log.Printf("%d: %v\n",x,p)
+          elasticConnection.Index("crashmat","upload",NewGuid(),nil,p)
+        }
       }
-    }
       time.Sleep(3000 * time.Millisecond)
     }
   }()
@@ -172,7 +167,7 @@ func FetchLastIndexFromES() int64 {
   )
   out, err := qry.Result(elasticConnection)
   checkErr(err,"Elastic Connection")    
-  
+
   count := 0
   for count < out.Hits.Total {
     bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
@@ -185,12 +180,11 @@ func FetchLastIndexFromES() int64 {
     results = append(results, t) 
     count += 1
   }
- 
+
   var highestId int64 = 0
 
   for _,p := range results {
     if p.Id >= highestId{
-      log.Println("Testing ", p.Id, " against ",highestId)
       highestId = p.Id
     }
   }
