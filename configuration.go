@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-10-02 15:12]
+*     Last Modified       :     [2015-10-02 16:33]
 *     Description         :      
 **********************************************************************************/
 
@@ -31,7 +31,9 @@ type Elastic struct {
   IsEnabled bool
   HostAddress string
 }
-
+type FetchUpdate struct {
+  MillisecondFrequency int
+}
 type Json struct {
   Port string
   ClientSecret string
@@ -39,6 +41,7 @@ type Json struct {
   GithubAuthCallback string
   Elastic Elastic
   Database Database
+  FetchUpdate FetchUpdate
 }
 
 type Database struct {
@@ -137,6 +140,8 @@ func (c *Configuration) StartPeriodicFetch() {
 
   go func() {
 
+    updateFrequency := c.Json.FetchUpdate.MillisecondFrequency
+
     var chunkSize int64 = 10
     for {
       var startIndex = FetchLastIndexFromES()
@@ -156,7 +161,7 @@ func (c *Configuration) StartPeriodicFetch() {
           elasticConnection.Index("crashmat","upload",NewGuid(),nil,p)
         }
       }
-      time.Sleep(3000 * time.Millisecond)
+      time.Sleep(time.Duration(updateFrequency) * time.Millisecond)
     }
   }()
 }
