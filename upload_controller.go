@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-09-30 17:42]
+*     Last Modified       :     [2015-10-02 11:38]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -17,7 +17,7 @@ import (
 )
 
 const (
-   iname string = "crashmat"
+  iname string = "crashmat"
 )
 type uploadController struct {}
 
@@ -60,6 +60,9 @@ func (i *uploadController) ReadMany(c context.Context) error {
     log.Fatal(err)
   }
   count := 0
+ 
+  log.Printf("Found %d hits", count)
+
   for count < out.Hits.Total {
 
     bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
@@ -87,6 +90,9 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
     log.Fatal(err)
   }
   count := 0
+  
+  log.Printf("Found %d hits", count)
+  
   for count < out.Hits.Total {
 
     bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()

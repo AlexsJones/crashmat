@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-09-29 16:27]
+*     Last Modified       :     [2015-10-02 12:11]
 *     Description         :      
 **********************************************************************************/
 
@@ -20,24 +20,34 @@ import (
   "os"
   "encoding/json"
   "log"
-   elastigo "github.com/mattbaird/elastigo/lib"
+  "database/sql"
+  "gopkg.in/gorp.v1"
+  _ "github.com/mattn/go-sqlite3"
+  elastigo "github.com/mattbaird/elastigo/lib"
 )
 
 type Elastic struct {
   IsEnabled bool
   HostAddress string
 }
+
 type Json struct {
-  LocalDev bool
   Port string
   ClientSecret string
   ClientId string
   GithubAuthCallback string
   Elastic Elastic
+  Database Database
 }
+
+type Database struct {
+  LocalPath string
+}
+
 type Configuration struct {
   Json Json
   HttpServer *http.Server
+  DbMap *gorp.DbMap
 }
 
 func (c *Configuration)Load(configurationPath string) {
@@ -104,4 +114,21 @@ func (c *Configuration) LoadServer() {
 
   }()
   log.Fatalf("Error in server: %s", c.HttpServer.Serve(listener))
+}
+
+func (c *Configuration) LoadDatabase() {
+
+  db, err := sql.Open("sqlite3", c.Json.Database.LocalPath)
+  checkErr(err, "sql.Open failed")
+  dbmap := &gorp.DbMap{ Db: db, Dialect: gorp.SqliteDialect{}}
+  dbmap.AddTableWithName(Upload{},"upload_entries").SetKeys(true, "Id")
+  err = dbmap.CreateTablesIfNotExists()
+  checkErr(err, "Create tables failed")
+  c.DbMap = dbmap
+  //c.DbMap.TruncateTables()
+}
+func checkErr(err error, msg string) {
+  if err != nil {
+    log.Fatalln(msg, err)
+  }
 }
