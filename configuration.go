@@ -2,7 +2,7 @@
 *     File Name           :     configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-10-02 12:11]
+*     Last Modified       :     [2015-10-02 15:01]
 *     Description         :      
 **********************************************************************************/
 
@@ -18,6 +18,7 @@ import (
   "github.com/stretchr/signature"
   "github.com/stretchr/gomniauth/providers/github"
   "os"
+  "fmt"
   "encoding/json"
   "log"
   "database/sql"
@@ -66,6 +67,7 @@ func (c *Configuration)Load(configurationPath string) {
 /* TODO:Until I know how to write Go better I'll store a ref here to ES */
 /* Global */
 var elasticConnection *elastigo.Conn
+var databaseConnection *gorp.DbMap
 /* Global */
 
 func (c *Configuration) LoadElasticSearch() {
@@ -97,7 +99,6 @@ func (c *Configuration) LoadServer() {
     WriteTimeout:   10 * time.Second,
     MaxHeaderBytes: 1 << 20,
   }
-
   b := make(chan os.Signal, 1)
 
   signal.Notify(b, os.Interrupt)
@@ -125,7 +126,75 @@ func (c *Configuration) LoadDatabase() {
   err = dbmap.CreateTablesIfNotExists()
   checkErr(err, "Create tables failed")
   c.DbMap = dbmap
-  //c.DbMap.TruncateTables()
+  databaseConnection = c.DbMap
+}
+
+func (c *Configuration) StartPeriodicFetch() {
+
+  log.Println("Starting periodic fetch")
+
+  go func() {
+    
+    var chunkSize int64 = 10
+    for {
+      var startIndex = FetchLastIndexFromES()
+
+      log.Println("Starting index from ",startIndex)
+      /*    
+      var results []Upload
+      qry := elastigo.Search(iname).Pretty().Query(
+        elastigo.Query().All(),
+      )
+      out, err := qry.Result(elasticConnection)
+      checkErr(err,"Elastic Connection")    
+      */
+      var uploads[] Upload
+
+      _, err := databaseConnection.Select(&uploads, fmt.Sprintf("select * from `upload_entries` LIMIT %d, %d",startIndex,startIndex + chunkSize))
+      checkErr(err,"Select failed")      
+      
+      if len(uploads) == 0 {
+        log.Printf("Nothing to parse from database")       
+      }else{
+      for x, p := range uploads {
+        log.Printf("%d: %v\n",x,p)
+        elasticConnection.Index("crashmat","upload",NewGuid(),nil,p)
+      }
+    }
+      time.Sleep(3000 * time.Millisecond)
+    }
+  }()
+}
+func FetchLastIndexFromES() int64 {
+  var results []Upload
+  qry := elastigo.Search(iname).Pretty().Query(
+    elastigo.Query().All(),
+  )
+  out, err := qry.Result(elasticConnection)
+  checkErr(err,"Elastic Connection")    
+  
+  count := 0
+  for count < out.Hits.Total {
+    bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
+    if err != nil {
+      log.Fatalf("err calling marshalJson:%v", err)
+    }
+
+    var t Upload
+    json.Unmarshal(bytes, &t)
+    results = append(results, t) 
+    count += 1
+  }
+ 
+  var highestId int64 = 0
+
+  for _,p := range results {
+    if p.Id >= highestId{
+      log.Println("Testing ", p.Id, " against ",highestId)
+      highestId = p.Id
+    }
+  }
+  return highestId
 }
 func checkErr(err error, msg string) {
   if err != nil {

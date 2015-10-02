@@ -2,7 +2,7 @@
 *     File Name           :     database_connection_test.go
 *     Created By          :     anon
 Creation Date       :     [2015-10-02 08:39]
-*     Last Modified       :     [2015-10-02 12:03]
+*     Last Modified       :     [2015-10-02 13:58]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -67,11 +67,6 @@ func TestDatabaseConnectionTest(t *testing.T) {
   checkErr(err,"Delete fail")
 
   defer dbmap.Db.Close()
-  
+
 }
 
-func checkErr(err error, msg string) {
-  if err != nil {
-    log.Fatalln(msg, err)
-  }
-}

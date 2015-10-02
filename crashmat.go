@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-10-02 12:14]
+*     Last Modified       :     [2015-10-02 14:30]
 *     Description         :
 **********************************************************************************/
 package main
@@ -33,6 +33,8 @@ func main() {
 
   log.Print("Initialising Database")
 
+  configuration.StartPeriodicFetch()
+  
   configuration.LoadServer()
 
   defer configuration.DbMap.Db.Close()
