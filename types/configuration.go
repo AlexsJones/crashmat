@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-05 19:38]
+*     Last Modified       :     [2015-10-05 19:48]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -86,7 +86,14 @@ func parseJson(configurationPath string) Json {
 func (c *Configuration)StartElasticSearch() {
 
   elasticConnection := elastigo.NewConn()
-  elasticConnection.SetFromUrl(c.Json.Elastic.HostAddress)
+
+  address := c.Json.Elastic.HostAddress
+
+  if os.Getenv("ElasticHostAddress") != "" {
+    address = os.Getenv("ElasticHostAddress")
+  }
+  
+  elasticConnection.SetFromUrl(address)
 
   ElasticConnection = elasticConnection
   c.ElasticConnection = elasticConnection
@@ -94,9 +101,19 @@ func (c *Configuration)StartElasticSearch() {
 
 func (c *Configuration)StartAuth() {
 
+  clientSecret := c.Json.ClientSecret
+  if os.Getenv("ClientSecret") != "" {
+    clientSecret = os.Getenv("ClientSecret")
+  }
+  
+  clientId := c.Json.ClientId
+  if os.Getenv("ClientId") != "" {
+    clientId = os.Getenv("ClientId")
+  }
+
   gomniauth.SetSecurityKey(signature.RandomKey(64))
-  gomniauth.WithProviders(github.New(c.Json.ClientId,
-  c.Json.ClientSecret,
+  gomniauth.WithProviders(github.New(clientId,
+  clientSecret,
   c.Json.GithubAuthCallback))
 }
 
