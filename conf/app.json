@@ -13,6 +13,6 @@
     "SelectOnRange":"select * from `upload_entries` LIMIT %d, %d"
   },
   "FetchUpdate": {
-    "MillisecondFrequency": 3000
+    "MillisecondFrequency": 8000
   }
 }

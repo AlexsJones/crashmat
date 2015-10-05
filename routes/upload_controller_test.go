@@ -2,10 +2,10 @@
 *     File Name           :     upload_controller_test.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 09:12]
-*     Last Modified       :     [2015-10-02 09:00]
+*     Last Modified       :     [2015-10-05 15:35]
 *     Description         :      
 **********************************************************************************/
-package main
+package routes
 import (
  /*
   "github.com/stretchr/codecs/services"

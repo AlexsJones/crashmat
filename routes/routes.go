@@ -2,10 +2,10 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-09-29 18:08]
+*     Last Modified       :     [2015-10-05 18:44]
 *     Description         :
 **********************************************************************************/
-package main
+package routes
 
 import (
   "github.com/stretchr/gomniauth"
@@ -14,7 +14,7 @@ import (
   "log"
 )
 
-func generateAuthRoutes(c Configuration) {
+func generateAuthRoutes() {
   /* Perform the auth */
   goweb.Map("/auth/{provider}", func(c context.Context) error {
     log.Println("Starting authentication")
@@ -60,6 +60,8 @@ func generateAuthRoutes(c Configuration) {
   })
   /* Complete auth notification */
   goweb.Map("/auth/status/successful", func(c context.Context) error {
+
+
     return goweb.Respond.With(c,200,[]byte("Authentication completed successfully"))
   })
   /* Failed auth notification */
@@ -68,22 +70,21 @@ func generateAuthRoutes(c Configuration) {
   })
 }
 
-func generateControllers(c Configuration) {
+func generateControllers() {
 
   uploadController := new (uploadController)
-
   goweb.MapController(uploadController)
 
 }
 
-func mapRoutes(c Configuration) {
+func MapRoutes() {
   goweb.MapBefore(func(c context.Context) error {
     log.Printf("%s %s %s", c.HttpRequest().RemoteAddr, 
     c.MethodString(), c.HttpRequest().URL.Path)
     return nil
   })
 
-  generateAuthRoutes(c)
+  generateAuthRoutes()
 
-  generateControllers(c)
+  generateControllers()
 }

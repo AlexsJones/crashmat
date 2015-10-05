@@ -2,7 +2,7 @@
 *     File Name           :     database_connection_test.go
 *     Created By          :     anon
 Creation Date       :     [2015-10-02 08:39]
-*     Last Modified       :     [2015-10-02 13:58]
+*     Last Modified       :     [2015-10-05 15:06]
 *     Description         :      
 **********************************************************************************/
 package main
@@ -32,6 +32,10 @@ func initDb(t *testing.T) *gorp.DbMap {
   err = dbmap.CreateTablesIfNotExists()
   checkErr(err, "Create tables failed")
   return dbmap
+}
+
+func TestDatabaseUserModel(t *testing.T) {
+
 }
 
 func TestDatabaseConnectionTest(t *testing.T) {

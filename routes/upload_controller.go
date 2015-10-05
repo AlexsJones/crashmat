@@ -2,10 +2,10 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-02 15:00]
+*     Last Modified       :     [2015-10-05 16:35]
 *     Description         :      
 **********************************************************************************/
-package main
+package routes
 
 import (
   "github.com/stretchr/goweb"
@@ -14,6 +14,8 @@ import (
   "encoding/json"
   "net/http"
   elastigo "github.com/mattbaird/elastigo/lib"
+  "github.com/AlexsJones/crashmat/types"
+  "github.com/AlexsJones/crashmat/utils"
 )
 
 const (
@@ -23,7 +25,7 @@ type uploadController struct {}
 
 func (i *uploadController) Before(c context.Context) error {
 
-  c.HttpResponseWriter().Header().Set("X-UploadController", "true")
+  c.HttpResponseWriter().Header().Set("X-types.UploadController", "true")
   return nil
 }
 
@@ -32,7 +34,8 @@ func (i *uploadController) Create(c context.Context) error {
   data, dataError := c.RequestData()
   if dataError != nil {
     log.Fatalf("Data error %s", dataError.Error())
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError, dataError.Error())
+    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+    dataError.Error())
   }
 
   dataMap := data.(map[string]interface{})
@@ -40,9 +43,10 @@ func (i *uploadController) Create(c context.Context) error {
   if dataMap["applicationid"].(string) != "" {
     if dataMap["raw"].(string) != "" {
 
-      uploaded := NewUpload(dataMap["applicationid"].(string), dataMap["raw"].(string))
-      err := databaseConnection.Insert(&uploaded)
-      checkErr(err,"Failed inserting")
+      uploaded := types.NewUpload(dataMap["applicationid"].(string), 
+      dataMap["raw"].(string))
+      err := types.DatabaseConnection.Insert(&uploaded)
+      utils.CheckErr(err,"Failed inserting")
     }
   }
 
@@ -51,11 +55,11 @@ func (i *uploadController) Create(c context.Context) error {
 
 func (i *uploadController) ReadMany(c context.Context) error {
 
-  var results []Upload
+  var results []types.Upload
   qry := elastigo.Search(iname).Pretty().Query(
     elastigo.Query().All(),
   )
-  out, err := qry.Result(elasticConnection)
+  out, err := qry.Result(types.ElasticConnection)
   if err != nil {
     log.Fatal(err)
   }
@@ -70,7 +74,7 @@ func (i *uploadController) ReadMany(c context.Context) error {
       log.Fatalf("err calling marshalJson:%v", err)
     }
 
-    var t Upload
+    var t types.Upload
     json.Unmarshal(bytes, &t)
     results = append(results, t) 
     count += 1
@@ -80,12 +84,12 @@ func (i *uploadController) ReadMany(c context.Context) error {
 
 func (i *uploadController) Read(applicationid string, c context.Context) error {
 
-  var results []Upload
+  var results []types.Upload
 
   qry := elastigo.Search(iname).Pretty().Query(
     elastigo.Query().Search(applicationid),
   )
-  out, err := qry.Result(elasticConnection)
+  out, err := qry.Result(types.ElasticConnection)
   if err != nil {
     log.Fatal(err)
   }
@@ -100,7 +104,7 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
       log.Fatalf("err calling marshalJson:%v", err)
     }
 
-    var t Upload
+    var t types.Upload
     json.Unmarshal(bytes, &t)
     results = append(results, t) 
     count += 1
