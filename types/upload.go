@@ -2,10 +2,10 @@
 *     File Name           :     upload.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 14:40]
-*     Last Modified       :     [2015-10-02 14:06]
+*     Last Modified       :     [2015-10-05 15:39]
 *     Description         :      
 **********************************************************************************/
-package main
+package types
 
 import (
   "time"
@@ -19,7 +19,8 @@ type Upload struct {
 }
 
 func NewUpload(applicationid string, raw string) Upload {
-  return Upload{Created:time.Now().UnixNano(), ApplicationId:applicationid, RawData:raw}
+  return Upload{Created:time.Now().UnixNano(), 
+  ApplicationId:applicationid, RawData:raw}
 }
 
 func (u *Upload) String() string {

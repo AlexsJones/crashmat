@@ -1,30 +1,33 @@
 /*********************************************************************************
-*     File Name           :     configuration.go
+*     File Name           :     types/configuration.go
 *     Created By          :     anon
-*     Creation Date       :     [2015-09-25 11:33]
-*     Last Modified       :     [2015-10-02 16:33]
+*     Creation Date       :     [2015-10-05 15:36]
+*     Last Modified       :     [2015-10-05 19:38]
 *     Description         :      
 **********************************************************************************/
-
-package main
+package types
 
 import (
-  "os/signal"
+  "gopkg.in/gorp.v1"
   "time"
-  "net"
-  "net/http"
+  "database/sql"
   "github.com/stretchr/goweb"
+  "fmt"
+  _ "github.com/mattn/go-sqlite3"
   "github.com/stretchr/gomniauth"
   "github.com/stretchr/signature"
   "github.com/stretchr/gomniauth/providers/github"
   "os"
-  "fmt"
-  "encoding/json"
   "log"
-  "database/sql"
-  "gopkg.in/gorp.v1"
-  _ "github.com/mattn/go-sqlite3"
+  "github.com/AlexsJones/crashmat/utils"
+  "encoding/json"
+  "net"
+  "net/http"
+  "os/signal"
   elastigo "github.com/mattbaird/elastigo/lib"
+)
+const (
+  iname string = "crashmat"
 )
 
 type Elastic struct {
@@ -53,35 +56,43 @@ type Database struct {
 type Configuration struct {
   Json Json
   HttpServer *http.Server
+  HttpPort string
+  Listener net.Listener
   DbMap *gorp.DbMap
+  ElasticConnection *elastigo.Conn
 }
 
-func (c *Configuration)Load(configurationPath string) {
+/* TODO:Until I know how to write Go better I'll store a ref here to ES */
+/* Global */
+var ElasticConnection *elastigo.Conn
+var DatabaseConnection *gorp.DbMap
+/* Global */
 
+func parseJson(configurationPath string) Json {
+
+  var j Json
   conf,err := os.Open(configurationPath)
   if err != nil {
     log.Fatalf("opening configuration file",err.Error())
   }
 
   jsonParser := json.NewDecoder(conf)
-  if err = jsonParser.Decode(&c.Json); err != nil {
+  if err = jsonParser.Decode(&j); err != nil {
     log.Fatalf("parsing config file", err.Error())
   }
+  return j
 }
 
-/* TODO:Until I know how to write Go better I'll store a ref here to ES */
-/* Global */
-var elasticConnection *elastigo.Conn
-var databaseConnection *gorp.DbMap
-/* Global */
+func (c *Configuration)StartElasticSearch() {
 
-func (c *Configuration) LoadElasticSearch() {
-
-  elasticConnection = elastigo.NewConn()
+  elasticConnection := elastigo.NewConn()
   elasticConnection.SetFromUrl(c.Json.Elastic.HostAddress)
 
+  ElasticConnection = elasticConnection
+  c.ElasticConnection = elasticConnection
 }
-func (c *Configuration) LoadAuth() {
+
+func (c *Configuration)StartAuth() {
 
   gomniauth.SetSecurityKey(signature.RandomKey(64))
   gomniauth.WithProviders(github.New(c.Json.ClientId,
@@ -89,13 +100,15 @@ func (c *Configuration) LoadAuth() {
   c.Json.GithubAuthCallback))
 }
 
-func (c *Configuration) LoadServer() {
+func (c *Configuration) StartServer() {
 
   port := c.Json.Port
   if os.Getenv("PORT") != "" {
     port = os.Getenv("PORT")  
     log.Print("Using environmental variable for $PORT")
   }
+
+  c.HttpPort = port
 
   c.HttpServer = &http.Server{
     Addr:           port,
@@ -104,34 +117,79 @@ func (c *Configuration) LoadServer() {
     WriteTimeout:   10 * time.Second,
     MaxHeaderBytes: 1 << 20,
   }
+
   b := make(chan os.Signal, 1)
 
   signal.Notify(b, os.Interrupt)
-  listener, listenErr := net.Listen("tcp", ":" + port)
-  log.Printf("  visit: %s", ":" + port)
+  listener, listenErr := net.Listen("tcp", ":" + c.HttpPort)
+  log.Printf("  visit: %s", ":" + c.HttpPort)
   if listenErr != nil {
     log.Fatalf("Could not listen: %s", listenErr)
   }
+  c.Listener = listener
 
   go func() {
     for _ = range b {
-      listener.Close()
+      c.Listener.Close()
     }
 
   }()
   log.Fatalf("Error in server: %s", c.HttpServer.Serve(listener))
 }
 
-func (c *Configuration) LoadDatabase() {
+func (c *Configuration) StartDatabase() {
 
   db, err := sql.Open("sqlite3", c.Json.Database.LocalPath)
-  checkErr(err, "sql.Open failed")
+  utils.CheckErr(err, "sql.Open failed")
   dbmap := &gorp.DbMap{ Db: db, Dialect: gorp.SqliteDialect{}}
   dbmap.AddTableWithName(Upload{},c.Json.Database.TableName).SetKeys(true, "Id")
   err = dbmap.CreateTablesIfNotExists()
-  checkErr(err, "Create tables failed")
+  utils.CheckErr(err, "Create tables failed")
   c.DbMap = dbmap
-  databaseConnection = c.DbMap
+  DatabaseConnection = c.DbMap
+}
+
+func NewConfiguration(configurationPath string) Configuration {
+
+  c := Configuration{
+    Json:parseJson(configurationPath),
+  }
+  return c
+} 
+
+func (c *Configuration)fetchLastIndexFromES() int64 {
+  var results []Upload
+
+  qry := elastigo.Search(iname).Pretty().Query(
+    elastigo.Query().All(),
+  )
+  out, err := qry.Result(ElasticConnection)
+
+  utils.CheckErr(err,"Elastic Connection")    
+
+  if out.Hits.Total == 0 {
+    log.Println("No indice data for updating fetch information")
+    return 0
+  }
+
+  for _, elem := range out.Hits.Hits {
+    bytes, err :=  elem.Source.MarshalJSON()
+    if err != nil {
+      log.Fatalf("err calling marshalJson:%v", err)
+    }
+    var t Upload
+    json.Unmarshal(bytes, &t)
+    results = append(results, t) 
+  }
+
+  var highestId int64 = 0
+
+  for _,p := range results {
+    if p.Id >= highestId{
+      highestId = p.Id
+    }
+  }
+  return highestId
 }
 
 func (c *Configuration) StartPeriodicFetch() {
@@ -144,59 +202,27 @@ func (c *Configuration) StartPeriodicFetch() {
 
     var chunkSize int64 = 10
     for {
-      var startIndex = FetchLastIndexFromES()
+      var StartIndex = c.fetchLastIndexFromES()
 
-      log.Println("Starting index from ",startIndex)
+      log.Println("Starting index from ",StartIndex)
 
       var uploads[] Upload
 
-      _, err := databaseConnection.Select(&uploads, fmt.Sprintf(c.Json.Database.SelectOnRange,startIndex,startIndex + chunkSize))
-      checkErr(err,"Select failed")      
+      _, err := DatabaseConnection.Select(&uploads, 
+      fmt.Sprintf(c.Json.Database.SelectOnRange, 
+      StartIndex,StartIndex + chunkSize))
+      utils.CheckErr(err,"Select failed")      
 
       if len(uploads) == 0 {
         log.Printf("Nothing to parse from database")       
       }else{
         for x, p := range uploads {
           log.Printf("%d: %v\n",x,p)
-          elasticConnection.Index("crashmat","upload",NewGuid(),nil,p)
+          ElasticConnection.Index("crashmat","upload",utils.NewGuid(),nil,p)
+
         }
       }
       time.Sleep(time.Duration(updateFrequency) * time.Millisecond)
     }
   }()
-}
-func FetchLastIndexFromES() int64 {
-  var results []Upload
-  qry := elastigo.Search(iname).Pretty().Query(
-    elastigo.Query().All(),
-  )
-  out, err := qry.Result(elasticConnection)
-  checkErr(err,"Elastic Connection")    
-
-  count := 0
-  for count < out.Hits.Total {
-    bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
-    if err != nil {
-      log.Fatalf("err calling marshalJson:%v", err)
-    }
-
-    var t Upload
-    json.Unmarshal(bytes, &t)
-    results = append(results, t) 
-    count += 1
-  }
-
-  var highestId int64 = 0
-
-  for _,p := range results {
-    if p.Id >= highestId{
-      highestId = p.Id
-    }
-  }
-  return highestId
-}
-func checkErr(err error, msg string) {
-  if err != nil {
-    log.Fatalln(msg, err)
-  }
 }
