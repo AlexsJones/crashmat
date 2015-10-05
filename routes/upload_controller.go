@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-05 16:35]
+*     Last Modified       :     [2015-10-05 19:52]
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -63,22 +63,17 @@ func (i *uploadController) ReadMany(c context.Context) error {
   if err != nil {
     log.Fatal(err)
   }
-  count := 0
 
-  log.Printf("Found %d hits", count)
-
-  for count < out.Hits.Total {
-
-    bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
+  for _, elem := range out.Hits.Hits {
+    bytes, err :=  elem.Source.MarshalJSON()
     if err != nil {
       log.Fatalf("err calling marshalJson:%v", err)
     }
-
     var t types.Upload
     json.Unmarshal(bytes, &t)
     results = append(results, t) 
-    count += 1
   }
+
   return goweb.API.RespondWithData(c,results)
 }
 
@@ -93,21 +88,18 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
   if err != nil {
     log.Fatal(err)
   }
-  count := 0
 
-  log.Printf("Found %d hits", count)
-
-  for count < out.Hits.Total {
-
-    bytes, err :=  out.Hits.Hits[count].Source.MarshalJSON()
+  for _, elem := range out.Hits.Hits {
+    bytes, err :=  elem.Source.MarshalJSON()
     if err != nil {
       log.Fatalf("err calling marshalJson:%v", err)
     }
-
     var t types.Upload
     json.Unmarshal(bytes, &t)
-    results = append(results, t) 
-    count += 1
+    if t.ApplicationId == applicationid {
+      results = append(results, t) 
+    }
   }
+
   return goweb.API.RespondWithData(c,results)
 }
