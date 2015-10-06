@@ -28,6 +28,10 @@
 			"Rev": "b808f01f660667b1510acf216aa2b9fe7f555ddb"
 		},
 		{
+			"ImportPath": "github.com/nu7hatch/gouuid",
+			"Rev": "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
+		},
+		{
 			"ImportPath": "github.com/stretchr/codecs",
 			"Rev": "8e29b38960a541ed1264b001dcb21701283c590d"
 		},

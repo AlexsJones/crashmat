@@ -2,7 +2,7 @@
 *     File Name           :     guid.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 15:06]
-*     Last Modified       :     [2015-10-05 16:36]
+*     Last Modified       :     [2015-10-06 12:18]
 *     Description         :      
 **********************************************************************************/
 
@@ -10,15 +10,15 @@ package utils
 
 import (
   "fmt"
-  "os/exec"
   "log"
+  "github.com/nu7hatch/gouuid"
 )
 
 func NewGuid() string {
-  out, err := exec.Command("uuidgen").Output()
+  u, err := uuid.NewV4()
   if err != nil {
-    log.Fatal(err)
+    log.Println("Unable to retrieve UUID")
     return ""
   }
-  return fmt.Sprintf("%s",out)
+  return fmt.Sprintf("%s",u)
 }
