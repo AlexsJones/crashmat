@@ -2,7 +2,7 @@
 *     File Name           :     upload.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 14:40]
-*     Last Modified       :     [2015-10-05 15:39]
+*     Last Modified       :     [2015-10-06 15:18]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -12,10 +12,10 @@ import (
   "encoding/json"
 )
 type Upload struct {
-  Id int64 `db:"upload_id"`
+  Id int64 
   Created int64
-  ApplicationId string `json:"Applicationid" db:"ApplicationId"`
-  RawData string `json:"RawData" db:"RawData"`
+  ApplicationId string `json:"Applicationid"`
+  RawData string `json:"RawData"`
 }
 
 func NewUpload(applicationid string, raw string) Upload {

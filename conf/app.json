@@ -8,11 +8,9 @@
     "HostAddress":""
   },
   "Database": {
-    "LocalPath":"db/dev.db",
-    "TableName":"upload_entries",
-    "SelectOnRange":"select * from `upload_entries` LIMIT %d, %d"
+    "ConnectionString":""
   },
   "FetchUpdate": {
-    "MillisecondFrequency": 8000
+    "MillisecondFrequency": 3000
   }
 }

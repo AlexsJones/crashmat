@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-10-06 08:39]
+*     Last Modified       :     [2015-10-06 15:05]
 *     Description         :
 **********************************************************************************/
 package main
@@ -34,5 +34,4 @@ func main() {
 
   configuration.StartServer()
 
-  defer configuration.DbMap.Db.Close()
 }

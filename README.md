@@ -35,4 +35,5 @@ export CRASHMAT_CLIENTSECRET=""
 export CRASHMAT_CLIENTID=""
 export CRASHMAT_ELASTICHOSTADDRESS=""
 export PORT="8080"
+export CRASHMAT_POSTGRESCONNECTION="host=localhost port=5432 user=bob password=bob"
 ```

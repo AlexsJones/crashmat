@@ -2,22 +2,17 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-<<<<<<< HEAD
-*     Last Modified       :     [2015-10-06 11:15]
-=======
-*     Last Modified       :     [2015-10-06 11:15]
->>>>>>> 96389c57d023d61b32004108d523d3694a966278
+*     Last Modified       :     [2015-10-06 16:04]
 *     Description         :      
 **********************************************************************************/
 package types
 
 import (
-  "gopkg.in/gorp.v1"
+  "github.com/jinzhu/gorm"
   "time"
-  "database/sql"
   "github.com/stretchr/goweb"
-  "fmt"
-  _ "github.com/mattn/go-sqlite3"
+  //"fmt"
+  _ "github.com/lib/pq"
   "github.com/stretchr/gomniauth"
   "github.com/stretchr/signature"
   "github.com/stretchr/gomniauth/providers/github"
@@ -52,9 +47,7 @@ type Json struct {
 }
 
 type Database struct {
-  LocalPath string
-  TableName string
-  SelectOnRange string
+  ConnectionString string
 }
 
 type Configuration struct {
@@ -62,14 +55,14 @@ type Configuration struct {
   HttpServer *http.Server
   HttpPort string
   Listener net.Listener
-  DbMap *gorp.DbMap
+  DbMap gorm.DB
   ElasticConnection *elastigo.Conn
 }
 
 /* TODO:Until I know how to write Go better I'll store a ref here to ES */
 /* Global */
 var ElasticConnection *elastigo.Conn
-var DatabaseConnection *gorp.DbMap
+var DatabaseConnection gorm.DB
 /* Global */
 
 func parseJson(configurationPath string) Json {
@@ -163,14 +156,27 @@ func (c *Configuration) StartServer() {
 
 func (c *Configuration) StartDatabase() {
 
-  db, err := sql.Open("sqlite3", c.Json.Database.LocalPath)
-  utils.CheckErr(err, "sql.Open failed")
-  dbmap := &gorp.DbMap{ Db: db, Dialect: gorp.SqliteDialect{}}
-  dbmap.AddTableWithName(Upload{},c.Json.Database.TableName).SetKeys(true, "Id")
-  err = dbmap.CreateTablesIfNotExists()
-  utils.CheckErr(err, "Create tables failed")
-  c.DbMap = dbmap
-  DatabaseConnection = c.DbMap
+  connectionString := c.Json.Database.ConnectionString
+ 
+  if os.Getenv("CRASHMAT_POSTGRESCONNECTION") != "" {
+    connectionString = os.Getenv("CRASHMAT_POSTGRESCONNECTION")
+    log.Println("Using environmental for CRASHMAT_POSTGRESCONNECTION")
+  }
+
+  db, err := gorm.Open("postgres",connectionString)
+
+  utils.CheckErr(err, "postgres failed")
+  
+  db.DB()
+
+  db.DB().Ping()
+
+  db.SingularTable(true)
+
+  db.CreateTable(&Upload{})
+
+  c.DbMap = db
+  DatabaseConnection = db
 }
 
 func NewConfiguration(configurationPath string) Configuration {
@@ -193,7 +199,6 @@ func (c *Configuration)fetchLastIndexFromES() int64 {
     log.Println("No record found")
     return 0
   }
-
 
   if out.Hits.Total == 0 {
     log.Println("No indice data for updating fetch information")
@@ -229,6 +234,7 @@ func (c *Configuration) StartPeriodicFetch() {
     updateFrequency := c.Json.FetchUpdate.MillisecondFrequency
 
     var chunkSize int64 = 10
+
     for {
       var StartIndex = c.fetchLastIndexFromES()
 
@@ -236,11 +242,10 @@ func (c *Configuration) StartPeriodicFetch() {
 
       var uploads[] Upload
 
-      _, err := DatabaseConnection.Select(&uploads, 
-      fmt.Sprintf(c.Json.Database.SelectOnRange, 
-      StartIndex,StartIndex + chunkSize))
-  
-      utils.CheckErr(err,"Select failed")      
+      DatabaseConnection.Where("id BETWEEN ? AND ?",StartIndex,
+      StartIndex + chunkSize).Find(&uploads)
+
+      log.Println("Found hits: ", len(uploads))
 
       if len(uploads) == 0 {
         log.Printf("Nothing to parse from database")       

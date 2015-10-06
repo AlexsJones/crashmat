@@ -3,9 +3,9 @@
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
 <<<<<<< HEAD
-*     Last Modified       :     [2015-10-06 13:48]
+*     Last Modified       :     [2015-10-06 15:29]
 =======
-*     Last Modified       :     [2015-10-06 13:48]
+*     Last Modified       :     [2015-10-06 15:29]
 >>>>>>> 96389c57d023d61b32004108d523d3694a966278
 *     Description         :      
 **********************************************************************************/
@@ -49,11 +49,9 @@ func (i *uploadController) Create(c context.Context) error {
 
       uploaded := types.NewUpload(dataMap["applicationid"].(string), 
       dataMap["raw"].(string))
-      err := types.DatabaseConnection.Insert(&uploaded)
-      if err != nil {
-        return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-        dataError.Error())
-      }
+
+      types.DatabaseConnection.Create(&uploaded)
+
     }
   }
 
@@ -68,7 +66,7 @@ func (i *uploadController) ReadMany(c context.Context) error {
   )
   out, err := qry.Result(types.ElasticConnection)
   if err != nil {
-      fmt.Println("err querying elastic connection:%v", err)
+    fmt.Println("err querying elastic connection:%v", err)
     return goweb.API.RespondWithError(c, http.StatusInternalServerError,
     err.Error())
   }
@@ -77,8 +75,8 @@ func (i *uploadController) ReadMany(c context.Context) error {
     bytes, err :=  elem.Source.MarshalJSON()
     if err != nil {
       log.Println("err calling marshalJson:%v", err)
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    err.Error())
+      return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+      err.Error())
     }
     var t types.Upload
     json.Unmarshal(bytes, &t)
@@ -97,7 +95,7 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
   )
   out, err := qry.Result(types.ElasticConnection)
   if err != nil {
-      log.Println("err querying elastic connection:%v", err)
+    log.Println("err querying elastic connection:%v", err)
     return goweb.API.RespondWithError(c, http.StatusInternalServerError,
     err.Error())
   }
@@ -106,8 +104,8 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
     bytes, err :=  elem.Source.MarshalJSON()
     if err != nil {
       log.Println("err calling marshalJson:%v", err)
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    err.Error())
+      return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+      err.Error())
     }
     var t types.Upload
     json.Unmarshal(bytes, &t)
