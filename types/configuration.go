@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-05 19:48]
+*     Last Modified       :     [2015-10-05 20:13]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -92,7 +92,7 @@ func (c *Configuration)StartElasticSearch() {
   if os.Getenv("ElasticHostAddress") != "" {
     address = os.Getenv("ElasticHostAddress")
   }
-  
+
   elasticConnection.SetFromUrl(address)
 
   ElasticConnection = elasticConnection
@@ -105,7 +105,7 @@ func (c *Configuration)StartAuth() {
   if os.Getenv("ClientSecret") != "" {
     clientSecret = os.Getenv("ClientSecret")
   }
-  
+
   clientId := c.Json.ClientId
   if os.Getenv("ClientId") != "" {
     clientId = os.Getenv("ClientId")
@@ -228,6 +228,7 @@ func (c *Configuration) StartPeriodicFetch() {
       _, err := DatabaseConnection.Select(&uploads, 
       fmt.Sprintf(c.Json.Database.SelectOnRange, 
       StartIndex,StartIndex + chunkSize))
+  
       utils.CheckErr(err,"Select failed")      
 
       if len(uploads) == 0 {
