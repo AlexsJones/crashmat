@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-06 16:14]
+*     Last Modified       :     [2015-10-06 16:30]
 *     Description         :      
 **********************************************************************************/
 package types
