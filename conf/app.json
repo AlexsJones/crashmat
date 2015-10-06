@@ -1,0 +1,18 @@
+{
+  "Port":"8080",
+  "ClientSecret":"",
+  "ClientId":"",
+  "GithubAuthCallback":"https://limitless-shore-5540.herokuapp.com/auth/github/callback",
+  "Elastic": {
+    "IsEnabled" : true,
+    "HostAddress":""
+  },
+  "Database": {
+    "LocalPath":"db/dev.db",
+    "TableName":"upload_entries",
+    "SelectOnRange":"select * from `upload_entries` LIMIT %d, %d"
+  },
+  "FetchUpdate": {
+    "MillisecondFrequency": 8000
+  }
+}

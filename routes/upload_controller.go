@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-05 19:52]
+*     Last Modified       :     [2015-10-06 11:11]
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -15,7 +15,6 @@ import (
   "net/http"
   elastigo "github.com/mattbaird/elastigo/lib"
   "github.com/AlexsJones/crashmat/types"
-  "github.com/AlexsJones/crashmat/utils"
 )
 
 const (
@@ -46,7 +45,11 @@ func (i *uploadController) Create(c context.Context) error {
       uploaded := types.NewUpload(dataMap["applicationid"].(string), 
       dataMap["raw"].(string))
       err := types.DatabaseConnection.Insert(&uploaded)
-      utils.CheckErr(err,"Failed inserting")
+      if err != nil {
+
+        return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+        dataError.Error())
+      }
     }
   }
 
@@ -60,14 +63,19 @@ func (i *uploadController) ReadMany(c context.Context) error {
     elastigo.Query().All(),
   )
   out, err := qry.Result(types.ElasticConnection)
+  
   if err != nil {
-    log.Fatal(err)
+      log.Println("err querying elastic connection:%v", err)
+    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+    err.Error())
   }
 
   for _, elem := range out.Hits.Hits {
     bytes, err :=  elem.Source.MarshalJSON()
     if err != nil {
-      log.Fatalf("err calling marshalJson:%v", err)
+      log.Println("err calling marshalJson:%v", err)
+    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+    err.Error())
     }
     var t types.Upload
     json.Unmarshal(bytes, &t)
@@ -86,13 +94,17 @@ func (i *uploadController) Read(applicationid string, c context.Context) error {
   )
   out, err := qry.Result(types.ElasticConnection)
   if err != nil {
-    log.Fatal(err)
+      log.Println("err querying elastic connection:%v", err)
+    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+    err.Error())
   }
 
   for _, elem := range out.Hits.Hits {
     bytes, err :=  elem.Source.MarshalJSON()
     if err != nil {
-      log.Fatalf("err calling marshalJson:%v", err)
+      log.Println("err calling marshalJson:%v", err)
+    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+    err.Error())
     }
     var t types.Upload
     json.Unmarshal(bytes, &t)

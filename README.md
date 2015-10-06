@@ -22,3 +22,15 @@ POST /Upload
 }
 
 ```
+
+Configuration
+============
+
+Either populate values in the `conf/app.json` and/or add secret information toenvironmental variables e.g.
+
+```
+export CRASHMAT_CLIENTSECRET=""
+export CRASHMAT_CLIENTID=""
+export CRASHMAT_ELASTICHOSTADDRESS=""
+export PORT="8080"
+```

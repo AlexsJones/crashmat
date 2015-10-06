@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-06 08:50]
+*     Last Modified       :     [2015-10-06 11:08]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -89,8 +89,9 @@ func (c *Configuration)StartElasticSearch() {
 
   address := c.Json.Elastic.HostAddress
 
-  if os.Getenv("ElasticHostAddress") != "" {
-    address = os.Getenv("ElasticHostAddress")
+  if os.Getenv("CRASHMAT_ELASTICHOSTADDRESS") != "" {
+    log.Println("Using environmental for CRASHMAT_ELASTICHOSTADDRESS")
+    address = os.Getenv("CRASHMAT_ELASTICHOSTADDRESS")
   }
 
   elasticConnection.SetFromUrl(address)
@@ -102,13 +103,15 @@ func (c *Configuration)StartElasticSearch() {
 func (c *Configuration)StartAuth() {
 
   clientSecret := c.Json.ClientSecret
-  if os.Getenv("ClientSecret") != "" {
-    clientSecret = os.Getenv("ClientSecret")
+  if os.Getenv("CRASHMAT_CLIENTSECRET") != "" {
+    log.Println("Using environmental for CRASHMAT_CLIENTSECRET")
+    clientSecret = os.Getenv("CRASHMAT_CLIENTSECRET")
   }
 
   clientId := c.Json.ClientId
-  if os.Getenv("ClientId") != "" {
-    clientId = os.Getenv("ClientId")
+  if os.Getenv("CRASHMAT_CLIENTID") != "" {
+    log.Println("Using environmental for CRASHMAT_CLIENTID")
+    clientId = os.Getenv("CRASHMAT_CLIENTID")
   }
 
   gomniauth.SetSecurityKey(signature.RandomKey(64))
@@ -240,8 +243,13 @@ func (c *Configuration) StartPeriodicFetch() {
       }else{
         for x, p := range uploads {
           log.Printf("%d: %v\n",x,p)
-          ElasticConnection.Index("crashmat","upload",utils.NewGuid(),nil,p)
-
+          
+          _, err := ElasticConnection.Index("crashmat","upload",utils.NewGuid(),nil,p)
+          if err != nil {
+            
+            log.Println(err,"Index failed")
+            return
+          }
         }
       }
       time.Sleep(time.Duration(updateFrequency) * time.Millisecond)
