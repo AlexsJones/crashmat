@@ -2,7 +2,7 @@
 *     File Name           :     util/error.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 16:19]
-*     Last Modified       :     [2015-10-05 16:35]
+*     Last Modified       :     [2015-10-06 08:26]
 *     Description         :      
 **********************************************************************************/
 

@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-05 20:13]
+*     Last Modified       :     [2015-10-06 08:50]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -182,7 +182,11 @@ func (c *Configuration)fetchLastIndexFromES() int64 {
   )
   out, err := qry.Result(ElasticConnection)
 
-  utils.CheckErr(err,"Elastic Connection")    
+  if err != nil {
+    log.Println("No record found")
+    return 0
+  }
+
 
   if out.Hits.Total == 0 {
     log.Println("No indice data for updating fetch information")
