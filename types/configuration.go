@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-06 16:30]
+*     Last Modified       :     [2015-10-06 17:59]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -12,6 +12,7 @@ import (
   "time"
   "github.com/stretchr/goweb"
   //"fmt"
+  "strconv"
   _ "github.com/lib/pq"
   "github.com/stretchr/gomniauth"
   "github.com/stretchr/signature"
@@ -157,7 +158,7 @@ func (c *Configuration) StartServer() {
 func (c *Configuration) StartDatabase() {
 
   connectionString := c.Json.Database.ConnectionString
- 
+
   if os.Getenv("CRASHMAT_POSTGRESCONNECTION") != "" {
     connectionString = os.Getenv("CRASHMAT_POSTGRESCONNECTION")
     log.Println("Using environmental for CRASHMAT_POSTGRESCONNECTION")
@@ -166,7 +167,7 @@ func (c *Configuration) StartDatabase() {
   db, err := gorm.Open("postgres",connectionString)
 
   utils.CheckErr(err, "postgres failed")
-  
+
   db.DB()
 
   db.DB().Ping()
@@ -231,11 +232,14 @@ func (c *Configuration) StartPeriodicFetch() {
 
   go func() {
 
-    updateFrequency := c.Json.FetchUpdate.MillisecondFrequency
-
     var chunkSize int64 = 10
 
     for {
+      updateFrequency := c.Json.FetchUpdate.MillisecondFrequency
+      if os.Getenv("CRASHMAT_UPDATEFREQ") != "" {
+        log.Println("Using environmental for CRASHMAT_UPDATEFREQ")
+        updateFrequency,_ = strconv.Atoi(os.Getenv("CRASHMAT_UPDATEFREQ"))
+      }
       var StartIndex = c.fetchLastIndexFromES() + 1
 
       log.Println("Starting index from ",StartIndex)
@@ -259,6 +263,8 @@ func (c *Configuration) StartPeriodicFetch() {
           }
         }
       }
+
+
       time.Sleep(time.Duration(updateFrequency) * time.Millisecond)
     }
   }()
