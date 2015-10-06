@@ -23,6 +23,11 @@
 			"Rev": "53bd637ad02af3043244da16c1b9f13633e8e912"
 		},
 		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-11-gb808f01",
+			"Rev": "b808f01f660667b1510acf216aa2b9fe7f555ddb"
+		},
+		{
 			"ImportPath": "github.com/stretchr/codecs",
 			"Rev": "8e29b38960a541ed1264b001dcb21701283c590d"
 		},
@@ -69,6 +74,11 @@
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
 			"Rev": "1d5269ed4e89d423d40362a0914e1c99adb13cc8"
+		},
+		{
+			"ImportPath": "gopkg.in/gorp.v1",
+			"Comment": "v1.7.1",
+			"Rev": "c87af80f3cc5036b55b83d77171e156791085e2e"
 		},
 		{
 			"ImportPath": "labix.org/v2/mgo/bson",
