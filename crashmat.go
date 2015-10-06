@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-10-05 19:21]
+*     Last Modified       :     [2015-10-06 08:39]
 *     Description         :
 **********************************************************************************/
 package main
@@ -19,7 +19,7 @@ func main() {
 
   log.Print("Map routes")
   routes.MapRoutes()
- 
+
   log.Print("Initialising Elasticsearch")
   configuration.StartElasticSearch()
 
@@ -28,7 +28,7 @@ func main() {
 
   log.Print("Initialising Database")
   configuration.StartDatabase()
- 
+
   log.Print("Starting periodic fetch service...")
   configuration.StartPeriodicFetch()
 
