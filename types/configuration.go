@@ -2,7 +2,11 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-06 11:08]
+<<<<<<< HEAD
+*     Last Modified       :     [2015-10-06 11:15]
+=======
+*     Last Modified       :     [2015-10-06 11:15]
+>>>>>>> 96389c57d023d61b32004108d523d3694a966278
 *     Description         :      
 **********************************************************************************/
 package types
@@ -243,10 +247,8 @@ func (c *Configuration) StartPeriodicFetch() {
       }else{
         for x, p := range uploads {
           log.Printf("%d: %v\n",x,p)
-          
           _, err := ElasticConnection.Index("crashmat","upload",utils.NewGuid(),nil,p)
           if err != nil {
-            
             log.Println(err,"Index failed")
             return
           }

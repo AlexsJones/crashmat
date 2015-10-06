@@ -1,7 +1,9 @@
 crashmat
 ======== 
 
-A simple web API for bug logging into ElasticSearch
+`Status: In development`
+
+A simple web API for call stack logging over the web then query results based on application ID filter
 
 `go get github.com/AlexsJones/crashmat`
 

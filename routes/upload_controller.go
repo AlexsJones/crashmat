@@ -2,7 +2,11 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-06 11:11]
+<<<<<<< HEAD
+*     Last Modified       :     [2015-10-06 11:14]
+=======
+*     Last Modified       :     [2015-10-06 11:14]
+>>>>>>> 96389c57d023d61b32004108d523d3694a966278
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -46,7 +50,6 @@ func (i *uploadController) Create(c context.Context) error {
       dataMap["raw"].(string))
       err := types.DatabaseConnection.Insert(&uploaded)
       if err != nil {
-
         return goweb.API.RespondWithError(c, http.StatusInternalServerError,
         dataError.Error())
       }
@@ -63,7 +66,6 @@ func (i *uploadController) ReadMany(c context.Context) error {
     elastigo.Query().All(),
   )
   out, err := qry.Result(types.ElasticConnection)
-  
   if err != nil {
       log.Println("err querying elastic connection:%v", err)
     return goweb.API.RespondWithError(c, http.StatusInternalServerError,
