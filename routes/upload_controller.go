@@ -3,9 +3,9 @@
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
 <<<<<<< HEAD
-*     Last Modified       :     [2015-10-06 11:14]
+*     Last Modified       :     [2015-10-06 13:48]
 =======
-*     Last Modified       :     [2015-10-06 11:14]
+*     Last Modified       :     [2015-10-06 13:48]
 >>>>>>> 96389c57d023d61b32004108d523d3694a966278
 *     Description         :      
 **********************************************************************************/
@@ -15,6 +15,7 @@ import (
   "github.com/stretchr/goweb"
   "github.com/stretchr/goweb/context"
   "log"
+  "fmt"
   "encoding/json"
   "net/http"
   elastigo "github.com/mattbaird/elastigo/lib"
@@ -36,7 +37,7 @@ func (i *uploadController) Create(c context.Context) error {
 
   data, dataError := c.RequestData()
   if dataError != nil {
-    log.Fatalf("Data error %s", dataError.Error())
+    log.Println("Data error %s", dataError.Error())
     return goweb.API.RespondWithError(c, http.StatusInternalServerError,
     dataError.Error())
   }
@@ -67,7 +68,7 @@ func (i *uploadController) ReadMany(c context.Context) error {
   )
   out, err := qry.Result(types.ElasticConnection)
   if err != nil {
-      log.Println("err querying elastic connection:%v", err)
+      fmt.Println("err querying elastic connection:%v", err)
     return goweb.API.RespondWithError(c, http.StatusInternalServerError,
     err.Error())
   }
