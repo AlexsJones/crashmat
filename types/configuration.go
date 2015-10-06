@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-06 16:04]
+*     Last Modified       :     [2015-10-06 16:14]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -236,7 +236,7 @@ func (c *Configuration) StartPeriodicFetch() {
     var chunkSize int64 = 10
 
     for {
-      var StartIndex = c.fetchLastIndexFromES()
+      var StartIndex = c.fetchLastIndexFromES() + 1
 
       log.Println("Starting index from ",StartIndex)
 
