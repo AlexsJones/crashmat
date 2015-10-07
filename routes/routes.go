@@ -2,7 +2,7 @@
 *     File Name           :     routes.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-25 09:51]
-*     Last Modified       :     [2015-10-05 18:44]
+*     Last Modified       :     [2015-10-07 15:48]
 *     Description         :
 **********************************************************************************/
 package routes
@@ -75,6 +75,8 @@ func generateControllers() {
   uploadController := new (uploadController)
   goweb.MapController(uploadController)
 
+  applicationController := new (applicationController)
+  goweb.MapController(applicationController)
 }
 
 func MapRoutes() {

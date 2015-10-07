@@ -2,11 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-<<<<<<< HEAD
-*     Last Modified       :     [2015-10-06 15:29]
-=======
-*     Last Modified       :     [2015-10-06 15:29]
->>>>>>> 96389c57d023d61b32004108d523d3694a966278
+*     Last Modified       :     [2015-10-07 16:11]
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -44,16 +40,26 @@ func (i *uploadController) Create(c context.Context) error {
 
   dataMap := data.(map[string]interface{})
 
-  if dataMap["applicationid"].(string) != "" {
-    if dataMap["raw"].(string) != "" {
+  appd, ok := dataMap["applicationid"]
 
-      uploaded := types.NewUpload(dataMap["applicationid"].(string), 
-      dataMap["raw"].(string))
-
-      types.DatabaseConnection.Create(&uploaded)
-
-    }
+  if !ok {
+    log.Println("Post missing applicationid")
+    return goweb.API.RespondWithError(c, http.StatusBadRequest,
+    "Post missing applicationid")
   }
+
+  rawd, ok := dataMap["raw"]
+
+  if !ok {
+    log.Println("Post missing raw data")
+    return goweb.API.RespondWithError(c, http.StatusBadRequest,
+    "Post missing raw data")
+  }
+
+  uploaded := types.NewUpload(appd.(string), 
+  rawd.(string))
+
+  types.DatabaseConnection.Create(&uploaded)
 
   return goweb.API.RespondWithData(c,nil)
 }
