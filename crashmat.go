@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-10-08 17:06]
+*     Last Modified       :     [2015-10-08 17:39]
 *     Description         :
 **********************************************************************************/
 package main
@@ -11,20 +11,26 @@ import (
   "github.com/AlexsJones/crashmat/types"
   "flag"
   "log"
+  "os"
   "github.com/AlexsJones/crashmat/routes"
 )
 
 func main() {
 
-  var confFlag = flag.String("conf","","Path to configuration file")
+  var configuration types.Configuration 
+  if os.Getenv("CRASHMAT_CONF")  != "" {
+  configuration = types.NewConfiguration(os.Getenv("CRASHMAT_CONF"))
+  }else {
+    var confFlag = flag.String("conf","","Path to configuration file")
 
-  flag.Parse()
+    flag.Parse()
 
-  if *confFlag == "" {
-    log.Fatal("Please provide a conf path -conf") 
-    return
+    if *confFlag == "" {
+      log.Fatal("Please provide a conf path -conf") 
+      return
+    }
+    configuration = types.NewConfiguration(*confFlag)
   }
-  var configuration = types.NewConfiguration(*confFlag)
 
   log.Print("Map routes")
   routes.MapRoutes()
