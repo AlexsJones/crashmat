@@ -1,4 +1,5 @@
 {
+  "RunLocalMode":true,
   "Port":"8080",
   "ClientSecret":"",
   "ClientId":"",

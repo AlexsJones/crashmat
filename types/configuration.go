@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-08 15:31]
+*     Last Modified       :     [2015-10-08 16:58]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -40,6 +40,7 @@ type FetchUpdate struct {
   MillisecondFrequency int
 }
 type Json struct {
+  RunLocalMode bool
   Port string
   ClientSecret string
   ClientId string
@@ -87,12 +88,13 @@ func parseJson(configurationPath string) Json {
 func (c *Configuration)StartElasticSearch() {
 
   address := c.Json.Elastic.HostAddress
-  
-  if os.Getenv("CRASHMAT_ELASTICHOSTADDRESS") != "" {
-    log.Println("Using environmental for CRASHMAT_ELASTICHOSTADDRESS")
-    address = os.Getenv("CRASHMAT_ELASTICHOSTADDRESS")
+
+  if !c.Json.RunLocalMode {
+    if os.Getenv("CRASHMAT_ELASTICHOSTADDRESS") != "" {
+      log.Println("Using environmental for CRASHMAT_ELASTICHOSTADDRESS")
+      address = os.Getenv("CRASHMAT_ELASTICHOSTADDRESS")
+    }
   }
-  
   if c.Json.Elastic.DropAllOnStartUp {
     log.Println("Purging => ", address + "crashmat")
     out, err:= exec.Command("curl","-XDELETE",address + "crashmat").Output()
@@ -100,14 +102,14 @@ func (c *Configuration)StartElasticSearch() {
       log.Println(err)
     }
     fmt.Printf("%s",out)
-    
+
     log.Println("Creating => ", address + "crashmat")
     out, err = exec.Command("curl","-XPUT",address + "crashmat").Output()
     if err != nil {
       log.Println(err)
     }
   }
-  
+
   elasticConnection := elastigo.NewConn()
 
   elasticConnection.SetFromUrl(address)
@@ -119,17 +121,20 @@ func (c *Configuration)StartElasticSearch() {
 func (c *Configuration)StartAuth() {
 
   clientSecret := c.Json.ClientSecret
-  if os.Getenv("CRASHMAT_CLIENTSECRET") != "" {
-    log.Println("Using environmental for CRASHMAT_CLIENTSECRET")
-    clientSecret = os.Getenv("CRASHMAT_CLIENTSECRET")
-  }
 
+  if !c.Json.RunLocalMode {
+    if os.Getenv("CRASHMAT_CLIENTSECRET") != "" {
+      log.Println("Using environmental for CRASHMAT_CLIENTSECRET")
+      clientSecret = os.Getenv("CRASHMAT_CLIENTSECRET")
+    }
+  }
   clientId := c.Json.ClientId
-  if os.Getenv("CRASHMAT_CLIENTID") != "" {
-    log.Println("Using environmental for CRASHMAT_CLIENTID")
-    clientId = os.Getenv("CRASHMAT_CLIENTID")
+  if !c.Json.RunLocalMode {
+    if os.Getenv("CRASHMAT_CLIENTID") != "" {
+      log.Println("Using environmental for CRASHMAT_CLIENTID")
+      clientId = os.Getenv("CRASHMAT_CLIENTID")
+    }
   }
-
   gomniauth.SetSecurityKey(signature.RandomKey(64))
   gomniauth.WithProviders(github.New(clientId,
   clientSecret,
@@ -177,11 +182,12 @@ func (c *Configuration) StartDatabase() {
 
   connectionString := c.Json.Database.ConnectionString
 
-  if os.Getenv("CRASHMAT_POSTGRESCONNECTION") != "" {
-    connectionString = os.Getenv("CRASHMAT_POSTGRESCONNECTION")
-    log.Println("Using environmental for CRASHMAT_POSTGRESCONNECTION")
+  if !c.Json.RunLocalMode {
+    if os.Getenv("CRASHMAT_POSTGRESCONNECTION") != "" {
+      connectionString = os.Getenv("CRASHMAT_POSTGRESCONNECTION")
+      log.Println("Using environmental for CRASHMAT_POSTGRESCONNECTION")
+    }
   }
-
   db, err := gorm.Open("postgres",connectionString)
 
   utils.CheckErr(err, "postgres failed")
@@ -263,9 +269,11 @@ func (c *Configuration) StartPeriodicFetch() {
 
     for {
       updateFrequency := c.Json.FetchUpdate.MillisecondFrequency
-      if os.Getenv("CRASHMAT_UPDATEFREQ") != "" {
-        log.Println("Using environmental for CRASHMAT_UPDATEFREQ")
-        updateFrequency,_ = strconv.Atoi(os.Getenv("CRASHMAT_UPDATEFREQ"))
+      if !c.Json.RunLocalMode {
+        if os.Getenv("CRASHMAT_UPDATEFREQ") != "" {
+          log.Println("Using environmental for CRASHMAT_UPDATEFREQ")
+          updateFrequency,_ = strconv.Atoi(os.Getenv("CRASHMAT_UPDATEFREQ"))
+        }
       }
       var StartIndex = c.fetchLastIndexFromES() 
 
