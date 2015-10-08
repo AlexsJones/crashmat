@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-07 16:11]
+*     Last Modified       :     [2015-10-08 13:28]
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -16,6 +16,7 @@ import (
   "net/http"
   elastigo "github.com/mattbaird/elastigo/lib"
   "github.com/AlexsJones/crashmat/types"
+  "github.com/AlexsJones/crashmat/utils"
 )
 
 const (
@@ -56,69 +57,119 @@ func (i *uploadController) Create(c context.Context) error {
     "Post missing raw data")
   }
 
-  uploaded := types.NewUpload(appd.(string), 
-  rawd.(string))
+  basicd,ok := dataMap["authorization"]
 
-  types.DatabaseConnection.Create(&uploaded)
-
-  return goweb.API.RespondWithData(c,nil)
-}
-
-func (i *uploadController) ReadMany(c context.Context) error {
-
-  var results []types.Upload
-  qry := elastigo.Search(iname).Pretty().Query(
-    elastigo.Query().All(),
-  )
-  out, err := qry.Result(types.ElasticConnection)
-  if err != nil {
-    fmt.Println("err querying elastic connection:%v", err)
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    err.Error())
+  if basicd != "Basic" {
+    log.Println("Post missing basic Authorization")
+    return goweb.API.RespondWithError(c, http.StatusBadRequest,
+    "Post missing correct Authorization")
   }
 
-  for _, elem := range out.Hits.Hits {
-    bytes, err :=  elem.Source.MarshalJSON()
+  userd, ok := dataMap["username"]
+
+  if !ok {
+    log.Println("Post missing username")
+    return goweb.API.RespondWithError(c, http.StatusBadRequest,
+    "Post missing username")
+  }
+
+  passd, ok := dataMap["password"]
+
+  if !ok {
+    log.Println("Post missing password")
+    return goweb.API.RespondWithError(c, http.StatusBadRequest,
+    "Post missing password")
+  }
+
+  var result types.Application
+
+  types.DatabaseConnection.Where(&types.Application{ 
+    ApplicationId:appd.(string)}).First(&result)
+
+    if result.ApplicationId == appd {
+
+      uploaded := types.NewUpload(appd.(string), 
+      rawd.(string))
+
+      if result.Username != userd {
+        log.Println("Post bad username")
+        return goweb.API.RespondWithError(c, http.StatusBadRequest,
+        "Bad credentials")
+      }
+
+      if utils.DoesPasswordMatchHash(result.EncryptedPassword,passd.(string))  {
+        log.Println("Password matches for post")
+
+        types.DatabaseConnection.Create(&uploaded)
+      }else {
+        log.Println("Post bad password")
+        return goweb.API.RespondWithError(c, http.StatusBadRequest,
+        "Bad credentials")
+      }
+    } else {
+
+      log.Println("Application not found")
+      return goweb.API.RespondWithError(c, http.StatusBadRequest,
+      "Application not found")
+    }
+
+    return goweb.API.RespondWithData(c,nil)
+  }
+  func (i *uploadController) ReadMany(c context.Context) error {
+
+    var results []types.Upload
+    qry := elastigo.Search(iname).Pretty().Query(
+      elastigo.Query().All(),
+    )
+    out, err := qry.Result(types.ElasticConnection)
     if err != nil {
-      log.Println("err calling marshalJson:%v", err)
+      fmt.Println("err querying elastic connection:%v", err)
       return goweb.API.RespondWithError(c, http.StatusInternalServerError,
       err.Error())
     }
-    var t types.Upload
-    json.Unmarshal(bytes, &t)
-    results = append(results, t) 
-  }
 
-  return goweb.API.RespondWithData(c,results)
-}
-
-func (i *uploadController) Read(applicationid string, c context.Context) error {
-
-  var results []types.Upload
-
-  qry := elastigo.Search(iname).Pretty().Query(
-    elastigo.Query().Search(applicationid),
-  )
-  out, err := qry.Result(types.ElasticConnection)
-  if err != nil {
-    log.Println("err querying elastic connection:%v", err)
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    err.Error())
-  }
-
-  for _, elem := range out.Hits.Hits {
-    bytes, err :=  elem.Source.MarshalJSON()
-    if err != nil {
-      log.Println("err calling marshalJson:%v", err)
-      return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-      err.Error())
-    }
-    var t types.Upload
-    json.Unmarshal(bytes, &t)
-    if t.ApplicationId == applicationid {
+    for _, elem := range out.Hits.Hits {
+      bytes, err :=  elem.Source.MarshalJSON()
+      if err != nil {
+        log.Println("err calling marshalJson:%v", err)
+        return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+        err.Error())
+      }
+      var t types.Upload
+      json.Unmarshal(bytes, &t)
       results = append(results, t) 
     }
+
+    return goweb.API.RespondWithData(c,results)
   }
 
-  return goweb.API.RespondWithData(c,results)
-}
+  func (i *uploadController) Read(applicationid string, c context.Context) error {
+
+    var results []types.Upload
+
+    qry := elastigo.Search(iname).Pretty().Query(
+      elastigo.Query().Search(applicationid),
+    )
+    out, err := qry.Result(types.ElasticConnection)
+    if err != nil {
+      log.Println("err querying elastic connection:%v", err)
+      return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+      err.Error())
+    }
+
+    for _, elem := range out.Hits.Hits {
+      bytes, err :=  elem.Source.MarshalJSON()
+      if err != nil {
+        log.Println("err calling marshalJson:%v", err)
+        return goweb.API.RespondWithError(c, http.StatusInternalServerError,
+        err.Error())
+      }
+      var t types.Upload
+      json.Unmarshal(bytes, &t)
+      if t.ApplicationId == applicationid {
+        results = append(results, t) 
+      }
+    }
+
+    return goweb.API.RespondWithData(c,results)
+  }

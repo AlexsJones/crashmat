@@ -12,19 +12,36 @@ API
 
 ```
 GET /Upload
-GET /Upload/{ApplicationId}
-GET /Auth/Github
+GET /Upload/{applicationId}
+GET /Application
 ```
 
 ```
 POST /Upload 
 {
-"Applicationid":"01",
+"authorization":"Basic",
+"username":"Bob",
+"password":"Password",
+"applicationid":"01",
 "raw":"{}"
 }
 
+POST /Application 
+{
+"authorization":"Basic",
+"username":"Bob",
+"password":"Password",
+"applicationid":"01",
+}
 ```
-
+```
+DELETE /application/{applicationid}
+{
+"authorization":"Basic",
+"username":"Bob",
+"password":"Password",
+}
+```
 Configuration
 ============
 

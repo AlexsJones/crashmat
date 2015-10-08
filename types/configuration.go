@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-06 17:59]
+*     Last Modified       :     [2015-10-08 11:12]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -175,6 +175,8 @@ func (c *Configuration) StartDatabase() {
   db.SingularTable(true)
 
   db.CreateTable(&Upload{})
+
+  db.CreateTable(&Application{})
 
   c.DbMap = db
   DatabaseConnection = db
