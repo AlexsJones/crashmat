@@ -5,10 +5,12 @@
   "GithubAuthCallback":"https://limitless-shore-5540.herokuapp.com/auth/github/callback",
   "Elastic": {
     "IsEnabled" : true,
-    "HostAddress":""
+    "HostAddress":"",
+    "DropAllOnStartUp":true
   },
   "Database": {
-    "ConnectionString":""
+    "ConnectionString":"",
+    "DropAllOnStartUp":true
   },
   "FetchUpdate": {
     "MillisecondFrequency": 14000

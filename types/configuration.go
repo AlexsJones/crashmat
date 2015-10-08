@@ -2,7 +2,7 @@
 *     File Name           :     types/configuration.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-05 15:36]
-*     Last Modified       :     [2015-10-08 11:12]
+*     Last Modified       :     [2015-10-08 15:31]
 *     Description         :      
 **********************************************************************************/
 package types
@@ -11,12 +11,13 @@ import (
   "github.com/jinzhu/gorm"
   "time"
   "github.com/stretchr/goweb"
-  //"fmt"
+  "fmt"
   "strconv"
   _ "github.com/lib/pq"
   "github.com/stretchr/gomniauth"
   "github.com/stretchr/signature"
   "github.com/stretchr/gomniauth/providers/github"
+  "os/exec"
   "os"
   "log"
   "github.com/AlexsJones/crashmat/utils"
@@ -33,6 +34,7 @@ const (
 type Elastic struct {
   IsEnabled bool
   HostAddress string
+  DropAllOnStartUp bool
 }
 type FetchUpdate struct {
   MillisecondFrequency int
@@ -49,6 +51,7 @@ type Json struct {
 
 type Database struct {
   ConnectionString string
+  DropAllOnStartUp bool
 }
 
 type Configuration struct {
@@ -83,14 +86,29 @@ func parseJson(configurationPath string) Json {
 
 func (c *Configuration)StartElasticSearch() {
 
-  elasticConnection := elastigo.NewConn()
-
   address := c.Json.Elastic.HostAddress
-
+  
   if os.Getenv("CRASHMAT_ELASTICHOSTADDRESS") != "" {
     log.Println("Using environmental for CRASHMAT_ELASTICHOSTADDRESS")
     address = os.Getenv("CRASHMAT_ELASTICHOSTADDRESS")
   }
+  
+  if c.Json.Elastic.DropAllOnStartUp {
+    log.Println("Purging => ", address + "crashmat")
+    out, err:= exec.Command("curl","-XDELETE",address + "crashmat").Output()
+    if err != nil {
+      log.Println(err)
+    }
+    fmt.Printf("%s",out)
+    
+    log.Println("Creating => ", address + "crashmat")
+    out, err = exec.Command("curl","-XPUT",address + "crashmat").Output()
+    if err != nil {
+      log.Println(err)
+    }
+  }
+  
+  elasticConnection := elastigo.NewConn()
 
   elasticConnection.SetFromUrl(address)
 
@@ -174,6 +192,13 @@ func (c *Configuration) StartDatabase() {
 
   db.SingularTable(true)
 
+  if c.Json.Database.DropAllOnStartUp {
+
+    db.DropTable(&Upload{})
+
+    db.DropTable(&Application{})
+  }
+
   db.CreateTable(&Upload{})
 
   db.CreateTable(&Application{})
@@ -242,7 +267,11 @@ func (c *Configuration) StartPeriodicFetch() {
         log.Println("Using environmental for CRASHMAT_UPDATEFREQ")
         updateFrequency,_ = strconv.Atoi(os.Getenv("CRASHMAT_UPDATEFREQ"))
       }
-      var StartIndex = c.fetchLastIndexFromES() + 1
+      var StartIndex = c.fetchLastIndexFromES() 
+
+      if StartIndex > 0 {
+        StartIndex = StartIndex + 1
+      }
 
       log.Println("Starting index from ",StartIndex)
 
@@ -265,7 +294,6 @@ func (c *Configuration) StartPeriodicFetch() {
           }
         }
       }
-
 
       time.Sleep(time.Duration(updateFrequency) * time.Millisecond)
     }

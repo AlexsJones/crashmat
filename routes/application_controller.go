@@ -2,7 +2,7 @@
 *     File Name           :     application_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-07 11:28]
-*     Last Modified       :     [2015-10-08 14:23]
+*     Last Modified       :     [2015-10-08 15:47]
 *     Description         :      
 **********************************************************************************/
 
@@ -11,6 +11,7 @@ package routes
 import (
   "log"
   "net/http"
+  "fmt"
   "github.com/AlexsJones/crashmat/utils"
   "github.com/AlexsJones/crashmat/types"
   "github.com/stretchr/goweb"
@@ -24,10 +25,10 @@ func (a *applicationController) ReadMany(c context.Context) error {
 
   types.DatabaseConnection.Find(&applications)
 
-  var appId []string
+  appId := make(map[string]string)
 
   for _, elem := range applications {
-    appId = append(appId,elem.ApplicationId)
+    appId[fmt.Sprintf("%v",elem.Id)] = fmt.Sprintf("%v",elem.ApplicationId)
   }
 
   return goweb.API.RespondWithData(c,appId)

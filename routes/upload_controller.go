@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-08 14:36]
+*     Last Modified       :     [2015-10-08 15:17]
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -13,6 +13,7 @@ import (
   "log"
   "fmt"
   "encoding/json"
+  "strconv"
   "net/http"
   elastigo "github.com/mattbaird/elastigo/lib"
   "github.com/AlexsJones/crashmat/types"
@@ -34,12 +35,12 @@ func (i *uploadController) Create(c context.Context) error {
 
   isValid,appd,userd,passd,rawd := utils.CheckHeaderIsValidWithBasicAuthAndRawData(c)
 
-    if isValid == false {
-      return goweb.API.RespondWithError(c, http.StatusBadRequest,
-      "Bad request in POST header")
-    }
+  if isValid == false {
+    return goweb.API.RespondWithError(c, http.StatusBadRequest,
+    "Bad request in POST header")
+  }
 
-    var result types.Application
+  var result types.Application
 
   types.DatabaseConnection.Where(&types.Application{ 
     ApplicationId:appd}).First(&result)
@@ -59,6 +60,14 @@ func (i *uploadController) Create(c context.Context) error {
         log.Println("Password matches for post")
 
         types.DatabaseConnection.Create(&uploaded)
+
+        /* Update this into the application */
+
+        result.Uploads = append(result.Uploads,uploaded)
+
+        types.DatabaseConnection.Model(&result).Updates(types.Application {
+          Uploads:result.Uploads})
+
       }else {
         log.Println("Post bad password")
         return goweb.API.RespondWithError(c, http.StatusBadRequest,
@@ -124,7 +133,8 @@ func (i *uploadController) Create(c context.Context) error {
       }
       var t types.Upload
       json.Unmarshal(bytes, &t)
-      if t.ApplicationId == applicationid {
+      appi,_ := strconv.Atoi(applicationid)
+      if t.ApplicationID == appi{
         results = append(results, t) 
       }
     }
