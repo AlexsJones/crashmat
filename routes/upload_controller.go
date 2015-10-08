@@ -2,7 +2,7 @@
 *     File Name           :     api_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-29 07:39]
-*     Last Modified       :     [2015-10-08 13:28]
+*     Last Modified       :     [2015-10-08 14:36]
 *     Description         :      
 **********************************************************************************/
 package routes
@@ -32,64 +32,22 @@ func (i *uploadController) Before(c context.Context) error {
 
 func (i *uploadController) Create(c context.Context) error {
 
-  data, dataError := c.RequestData()
-  if dataError != nil {
-    log.Println("Data error %s", dataError.Error())
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    dataError.Error())
-  }
+  isValid,appd,userd,passd,rawd := utils.CheckHeaderIsValidWithBasicAuthAndRawData(c)
 
-  dataMap := data.(map[string]interface{})
+    if isValid == false {
+      return goweb.API.RespondWithError(c, http.StatusBadRequest,
+      "Bad request in POST header")
+    }
 
-  appd, ok := dataMap["applicationid"]
-
-  if !ok {
-    log.Println("Post missing applicationid")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing applicationid")
-  }
-
-  rawd, ok := dataMap["raw"]
-
-  if !ok {
-    log.Println("Post missing raw data")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing raw data")
-  }
-
-  basicd,ok := dataMap["authorization"]
-
-  if basicd != "Basic" {
-    log.Println("Post missing basic Authorization")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing correct Authorization")
-  }
-
-  userd, ok := dataMap["username"]
-
-  if !ok {
-    log.Println("Post missing username")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing username")
-  }
-
-  passd, ok := dataMap["password"]
-
-  if !ok {
-    log.Println("Post missing password")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing password")
-  }
-
-  var result types.Application
+    var result types.Application
 
   types.DatabaseConnection.Where(&types.Application{ 
-    ApplicationId:appd.(string)}).First(&result)
+    ApplicationId:appd}).First(&result)
 
     if result.ApplicationId == appd {
 
-      uploaded := types.NewUpload(appd.(string), 
-      rawd.(string))
+      uploaded := types.NewUpload(appd, 
+      rawd)
 
       if result.Username != userd {
         log.Println("Post bad username")
@@ -97,7 +55,7 @@ func (i *uploadController) Create(c context.Context) error {
         "Bad credentials")
       }
 
-      if utils.DoesPasswordMatchHash(result.EncryptedPassword,passd.(string))  {
+      if utils.DoesPasswordMatchHash(result.EncryptedPassword,passd)  {
         log.Println("Password matches for post")
 
         types.DatabaseConnection.Create(&uploaded)

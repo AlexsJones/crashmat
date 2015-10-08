@@ -35,11 +35,12 @@ POST /Application
 }
 ```
 ```
-DELETE /application/{applicationid}
+DELETE /Application
 {
 "authorization":"Basic",
 "username":"Bob",
 "password":"Password",
+"applicationid":"01"
 }
 ```
 Configuration
@@ -48,9 +49,9 @@ Configuration
 Either populate values in the `conf/app.json` and/or add secret information toenvironmental variables e.g.
 
 ```
-export CRASHMAT_CLIENTSECRET=""
-export CRASHMAT_CLIENTID=""
-export CRASHMAT_ELASTICHOSTADDRESS=""
+export CRASHMAT_CLIENTSECRET="23092402950259secrety"
+export CRASHMAT_CLIENTID="12345"
+export CRASHMAT_ELASTICHOSTADDRESS="localhost:9200"
 export PORT="8080"
 export CRASHMAT_POSTGRESCONNECTION="host=localhost port=5432 user=bob password=bob"
 export CRASHMAT_UPDATEFREQ=9000

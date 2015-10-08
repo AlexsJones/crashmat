@@ -2,7 +2,7 @@
 *     File Name           :     application_controller.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-10-07 11:28]
-*     Last Modified       :     [2015-10-08 13:38]
+*     Last Modified       :     [2015-10-08 14:23]
 *     Description         :      
 **********************************************************************************/
 
@@ -33,49 +33,21 @@ func (a *applicationController) ReadMany(c context.Context) error {
   return goweb.API.RespondWithData(c,appId)
 }
 
-func (a *applicationController) Delete(applicationid string,
-c context.Context) error {
-  
-  log.Println("Delete")
-  data, dataError := c.RequestData()
-  if dataError != nil {
-    log.Println("Data error %s", dataError.Error())
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    dataError.Error())
-  }
+func (a *applicationController) DeleteMany(c context.Context) error {
 
-  dataMap := data.(map[string]interface{})
+  isValid,appd,userd,passd := utils.CheckHeaderIsValidWithBasicAuth(c)
 
-  basicd,ok := dataMap["authorization"]
-
-  if basicd != "Basic" {
-    log.Println("Post missing basic Authorization")
+  if isValid == false {
     return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing correct Authorization")
-  }
-
-  userd, ok := dataMap["username"]
-
-  if !ok {
-    log.Println("Post missing username")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing username")
-  }
-
-  passd, ok := dataMap["password"]
-
-  if !ok {
-    log.Println("Post missing password")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing password")
+    "Bad request in POST header")
   }
 
   var result types.Application
 
   types.DatabaseConnection.Where(&types.Application{ 
-    ApplicationId:applicationid}).First(&result)
+    ApplicationId:appd}).First(&result)
 
-    if result.ApplicationId == applicationid {
+    if result.ApplicationId == appd{
 
       if result.Username != userd {
         log.Println("Post bad username")
@@ -83,7 +55,7 @@ c context.Context) error {
         "Bad credentials")
       }
 
-      if utils.DoesPasswordMatchHash(result.EncryptedPassword,passd.(string))  {
+      if utils.DoesPasswordMatchHash(result.EncryptedPassword,passd)  {
         log.Println("Password matches for post")
 
         types.DatabaseConnection.Delete(&result)
@@ -100,78 +72,34 @@ c context.Context) error {
     }
 
     return goweb.API.RespondWithData(c,nil)
-}
-
-func (a *applicationController) Create(c context.Context) error {
-
-  data, dataError := c.RequestData()
-  if dataError != nil {
-    log.Println("Data error %s", dataError.Error())
-    return goweb.API.RespondWithError(c, http.StatusInternalServerError,
-    dataError.Error())
   }
 
-  dataMap := data.(map[string]interface{})
+  func (a *applicationController) Create(c context.Context) error {
 
-  log.Println(dataMap)
+    isValid,appd,userd,passd := utils.CheckHeaderIsValidWithBasicAuth(c)
 
-  basicd,ok := dataMap["authorization"]
+    if isValid == false {
+      return goweb.API.RespondWithError(c, http.StatusBadRequest,
+      "Bad request in POST header")
+    }
 
-  if !ok {
-    log.Println("Post missing authorization")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing authorization")
-  }
-  /* Setting up to use basic auth */
-  if basicd != "Basic" {
-    log.Println("Post missing basic Authorization")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing correct Authorization")
-  }
+    hashedPassword := utils.PasswordToHash(passd)
 
-  appd, ok := dataMap["applicationid"]
+    app := types.NewApplication(appd,userd,hashedPassword) 
 
-  if !ok {
-    log.Println("Post missing applicationid")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing applicationid")
-  }
+    var results types.Application
 
-  userd, ok := dataMap["username"]
+    types.DatabaseConnection.Where(&types.Application{ 
+      ApplicationId:app.ApplicationId}).First(&results)
 
-  if !ok {
-    log.Println("Post missing username")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing username")
-  }
+      if results.ApplicationId == app.ApplicationId {
+        log.Println("Found existing application registered with this id")  
+        return goweb.API.RespondWithError(c, http.StatusBadRequest,
+        "Application already exists")
+      }else {
+        types.DatabaseConnection.Create(&app)
+      }
 
-  passd, ok := dataMap["password"]
-
-  if !ok {
-    log.Println("Post missing password")
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Post missing password")
-  }
-
-  hashedPassword := utils.PasswordToHash(passd.(string))
-
-  app := types.NewApplication(appd.(string),userd.(string),hashedPassword) 
-  
-  /* Check and see whether we have already registred this app */
-
-  var results types.Application
-  
-  types.DatabaseConnection.Where(&types.Application{ 
-    ApplicationId:app.ApplicationId}).First(&results)
-
-  if results.ApplicationId == app.ApplicationId {
-    log.Println("Found existing application registered with this id")  
-    return goweb.API.RespondWithError(c, http.StatusBadRequest,
-    "Application already exists")
-  }else {
-    types.DatabaseConnection.Create(&app)
-  }
-
-  return goweb.API.RespondWithData(c,nil)
-}
+      return goweb.API.RespondWithData(c,nil)
+    }
 
