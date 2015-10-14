@@ -2,7 +2,7 @@
 *     File Name           :     crashmat.go
 *     Created By          :     anon
 *     Creation Date       :     [2015-09-24 23:14]
-*     Last Modified       :     [2015-10-08 17:39]
+*     Last Modified       :     [2015-10-14 08:28]
 *     Description         :
 **********************************************************************************/
 package main
@@ -19,7 +19,7 @@ func main() {
 
   var configuration types.Configuration 
   if os.Getenv("CRASHMAT_CONF")  != "" {
-  configuration = types.NewConfiguration(os.Getenv("CRASHMAT_CONF"))
+    configuration = types.NewConfiguration(os.Getenv("CRASHMAT_CONF"))
   }else {
     var confFlag = flag.String("conf","","Path to configuration file")
 
@@ -43,10 +43,9 @@ func main() {
 
   log.Print("Initialising Database")
   configuration.StartDatabase()
-
   log.Print("Starting periodic fetch service...")
   configuration.StartPeriodicFetch()
 
-  configuration.StartServer()
 
+  configuration.StartServer()
 }
